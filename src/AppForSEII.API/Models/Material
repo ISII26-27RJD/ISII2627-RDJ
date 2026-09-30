@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace AppForSEII.AppForSEII.Models
+namespace AppForSEII.API.Models
 {
     
     public class Material

@@ -24,5 +24,10 @@ namespace AppForSEII.API.Models
         [Range(0, int.MaxValue, ErrorMessage = "El stock no puede ser negativo.")]
         public int Stock { get; set; }
 
+        // Hacer más adelante las relaciones
+        
+        // public TipoDeporte TipoDeporte { get; set; }
+        // public IList<PistaReservada> PistasReservadas { get; set; }
+
     }
 }

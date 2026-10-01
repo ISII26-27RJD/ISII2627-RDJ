@@ -20,7 +20,7 @@ namespace AppForSEII.API.Models
 
         // Campo opcional según la especificación del caso de uso (Paso 5)
         [StringLength(250, ErrorMessage = "La descripción de problemas físicos no puede superar los 250 caracteres.")]
-        [Display(Name = "Problemas físicos / Observaciones")]
+        [System.ComponentModel.DataAnnotations.Display(Name = "Problemas físicos / Observaciones")]
         public string? ProblemasFisicos { get; set; }
 
         // --- RELACIONES DE NAVEGACIÓN SEGÚN EL DIAGRAMA DE CLASES ---

@@ -1,0 +1,9 @@
+@startuml
+enum MetodoPago {
+    Bizum,
+    Efectivo,
+    Tarjeta,
+    Transferencia,
+    Metalico,
+}
+@enduml

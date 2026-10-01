@@ -94,18 +94,20 @@ namespace AppForSEII.API.Data
             string[] nombresDeportes = ["Pádel", "Tenis", "Baloncesto", "Fútbol 7"];
             List<TipoDeporte> tiposDeporte = new List<TipoDeporte>();
 
+            var tiposDeportesSet = dbContext.Set<TipoDeporte>();
             foreach (string nombreDeporte in nombresDeportes) {
-                var tipo = dbContext.TiposDeportes.FirstOrDefault(t => t.Nombre == nombreDeporte);
+                var tipo = tiposDeportesSet.FirstOrDefault(t => t.Nombre == nombreDeporte);
                 if (tipo == null) {
                     tipo = new TipoDeporte { Nombre = nombreDeporte };
-                    dbContext.TiposDeportes.Add(tipo);
+                    tiposDeportesSet.Add(tipo);
                 }
                 tiposDeporte.Add(tipo);
             }
             dbContext.SaveChanges();
 
             // Insertar Competiciones si no existen
-            if (dbContext.Competiciones.FirstOrDefault(c => c.Nombre == "Torneo Otoño Pádel 2026") == null) {
+            var competicionesSet = dbContext.Set<Competicion>();
+            if (competicionesSet.FirstOrDefault(c => c.Nombre == "Torneo Otoño Pádel 2026") == null) {
                 var competicion1 = new Competicion {
                     Nombre = "Torneo Otoño Pádel 2026",
                     Lugar = "Pabellón Universitario IMD",
@@ -114,10 +116,10 @@ namespace AppForSEII.API.Data
                     Precio = 15.50m,
                     TipoDeporteId = tiposDeporte[0].Id
                 };
-                dbContext.Competiciones.Add(competicion1);
+                competicionesSet.Add(competicion1);
             }
 
-            if (dbContext.Competiciones.FirstOrDefault(c => c.Nombre == "Liga Local Tenis Individual") == null) {
+            if (competicionesSet.FirstOrDefault(c => c.Nombre == "Liga Local Tenis Individual") == null) {
                 var competicion2 = new Competicion {
                     Nombre = "Liga Local Tenis Individual",
                     Lugar = "Club Tenis Albacete",
@@ -126,7 +128,7 @@ namespace AppForSEII.API.Data
                     Precio = 20.00m,
                     TipoDeporteId = tiposDeporte[1].Id
                 };
-                dbContext.Competiciones.Add(competicion2);
+                competicionesSet.Add(competicion2);
             }
 
             dbContext.SaveChanges();
@@ -139,16 +141,16 @@ namespace AppForSEII.API.Data
         {
             // Verificamos si existe al menos una inscripción creada
             if (!dbContext.Inscripciones.Any()) {
-                var competicion = dbContext.Competiciones.FirstOrDefault();
+                var competicion = dbContext.Set<Competicion>().FirstOrDefault();
 
                 if (competicion != null) {
                     var inscripcion = new Inscripcion {
-                        NombreUsuario = user != null ? user.Nombre : "Peter",
-                        ApellidosUsuario = user != null ? user.Apellidos : "Jackson",
+                        NombreUsuario = user != null ? user.Name : "Peter",
+                        ApellidosUsuario = user != null ? user.Surname : "Jackson",
                         DNI = "12345678Z",
                         Telefono = "600112233",
                         FechaInscripcion = DateTime.Now,
-                        MetodoPago = "Tarjeta de Crédito",
+                        MetodoPago = MetodoPago.Tarjeta,
                         PrecioTotal = competicion.Precio,
                         DatosPago = "**** **** **** 4321",
                         CompeticionesInscritas = new List<CompeticionInscrita>()

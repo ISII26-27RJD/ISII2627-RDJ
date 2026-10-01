@@ -37,9 +37,18 @@ namespace AppForSEII.API.Models
 >>>>>>> 48f48572c57e49caf54096687c8144ad01d80278
         public string Nombre { get; set; }
 
+        // Descripción opcional del tipo de deporte
+        [StringLength(200, ErrorMessage = "La descripción no puede superar los 200 caracteres.")]
+        [System.ComponentModel.DataAnnotations.Display(Name = "Descripción")]
+        public string? Descripcion { get; set; }
+
+
         // --- RELACIONES SEGÚN EL DIAGRAMA DE CLASES ---
 
-        
         public IList<Competicion> Competiciones { get; set; }
+
+
+        // Navegación caso de uso "Apuntarse a clase deportiva"
+        public IList<ClaseDeportiva> ClasesDeportivas { get; set; }
     }
 }

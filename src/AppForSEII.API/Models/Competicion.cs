@@ -13,37 +13,37 @@ namespace AppForSEII.API.Models
 
         [Required(ErrorMessage = "El nombre de la competición es obligatorio.")]
         [StringLength(100, ErrorMessage = "El nombre de la competición no puede superar los 100 caracteres.")]
-        [Display(Name = "Nombre de la competición")]
+        [System.ComponentModel.DataAnnotations.Display(Name = "Nombre de la competición")]
         public string Nombre { get; set; }
 
         [Required(ErrorMessage = "El lugar de la competición es obligatorio.")]
         [StringLength(100, ErrorMessage = "El lugar de la competición no puede superar los 100 caracteres.")]
-        [Display(Name = "Lugar")]
+        [System.ComponentModel.DataAnnotations.Display(Name = "Lugar")]
         public string Lugar { get; set; }
 
         [Required(ErrorMessage = "La fecha de la competición es obligatoria.")]
-        [DataType(DataType.DateTime)]
-        [Display(Name = "Fecha y hora")]
+        [DataType(System.ComponentModel.DataAnnotations.DataType.DateTime)]
+        [System.ComponentModel.DataAnnotations.Display(Name = "Fecha y hora")]
         public DateTime Fecha { get; set; }
 
         [Required]
         [Range(1, 1000, ErrorMessage = "Debe haber al menos 1 plaza disponible.")]
-        [Display(Name = "Plazas disponibles")]
+        [System.ComponentModel.DataAnnotations.Display(Name = "Plazas disponibles")]
         public int Plazas { get; set; }
 
         [Required]
         [Range(0.0, 999.99, ErrorMessage = "El precio debe ser positivo.")]
-        [DataType(DataType.Currency)]
+        [DataType(System.ComponentModel.DataAnnotations.DataType.Currency)]
         [Precision(5, 2)]
-        [Display(Name = "Precio de la inscripción")]
+        [System.ComponentModel.DataAnnotations.Display(Name = "Precio de la inscripción")]
         public decimal Precio { get; set; }
 
         // Clave foránea y propiedad de navegación para la relación con TipoDeporte (Relación N:1)
         [Required]
         public int TipoDeporteId { get; set; }
 
-        [ForeignKey(nameof(TipoDeporteId))]
-        public TipoDeporte TipoDeporte { get; set; }
+        // [ForeignKey(nameof(TipoDeporteId))]
+        // public TipoDeporte TipoDeporte { get; set; }
 
         // Relación 1:N con la entidad intermedia CompeticionInscrita
         public IList<CompeticionInscrita> CompeticionesInscritas { get; set; }

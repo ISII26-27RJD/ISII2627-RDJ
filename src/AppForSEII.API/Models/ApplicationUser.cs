@@ -12,7 +12,7 @@ namespace AppForSEII.API.Models
         {
         }
 
-        public ApplicationUser(string id, string name, string surname, string userName, string dni, int age, string sex)
+        public ApplicationUser(string id, string name, string surname, string userName, string dni = "", int age = 0, string sex = "")
         {
             Id = id;
             Name = name;

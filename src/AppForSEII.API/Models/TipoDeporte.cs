@@ -10,7 +10,7 @@ namespace AppForSEII.API.Models
 
         [Required(ErrorMessage = "El nombre del tipo de deporte es obligatorio.")]
         [StringLength(50, ErrorMessage = "El nombre del tipo de deporte no puede superar los 50 caracteres.")]
-        [Display(Name = "Tipo de deporte")]
+        [System.ComponentModel.DataAnnotations.Display(Name = "Tipo de deporte")]
         public string Nombre { get; set; }
 
         // --- RELACIONES SEGÚN EL DIAGRAMA DE CLASES ---

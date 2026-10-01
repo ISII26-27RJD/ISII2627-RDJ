@@ -18,7 +18,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     public DbSet<ApplicationUser> ApplicationUsers { get; set; }
 
-
+    public DbSet<Pista> Pistas { get; set; } //Asignación explicita de las clases que tendrá la base de datos
 
 
 }

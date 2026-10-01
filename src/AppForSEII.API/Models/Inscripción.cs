@@ -5,9 +5,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AppForSEII.API.Models
 {
-    /// <summary>
-    /// Clase que representa la entidad Inscripcion del caso de uso "Inscribirse a competición".
-    /// </summary>
     public class Inscripcion
     {
         [Key]

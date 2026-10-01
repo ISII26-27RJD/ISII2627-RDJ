@@ -8,9 +8,9 @@ class Inscripcion {
     + FechaInscripcion : DateTime <<get>> <<set>>
     + MetodoPago : MetodoPago <<get>> <<set>>
     + PrecioTotal : decimal <<get>> <<set>>
-    + CompeticionesInscritas : IList<CompeticionInscrita> <<get>> <<set>>
+    + CompeticionesInscritas : IList&lt;CompeticionInscrita&gt; <<get>> <<set>>
     + DatosPago : string <<get>> <<set>>
     + Cliente : ApplicationUser <<get>> <<set>>
-    + ClasesInscritas : IList<ClaseInscrita> <<get>> <<set>>
+    + ClasesInscritas : IList&lt;ClaseInscrita&gt; <<get>> <<set>>
 }
 @enduml

@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AppForSEII.API.Models
 {
+    
     public class CompeticionInscrita
     {
         [Key]

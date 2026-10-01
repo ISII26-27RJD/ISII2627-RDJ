@@ -37,8 +37,7 @@ namespace AppForSEII.API.Models
 
         [Required(ErrorMessage = "El método de pago es obligatorio.")]
         [System.ComponentModel.DataAnnotations.Display(Name = "Método de pago")]
-        public string MetodoPago { get; set; } // TODO: cambiar a enum MetodoPago cuando esté definido
-
+        public MetodoPago MetodoPago { get; set; } 
         [Required]
         [Range(0.0, 999.99, ErrorMessage = "El precio total debe ser positivo.")]
         [DataTypeAttribute(System.ComponentModel.DataAnnotations.DataType.Currency)]

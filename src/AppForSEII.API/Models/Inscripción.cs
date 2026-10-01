@@ -37,7 +37,7 @@ namespace AppForSEII.API.Models
 
         [Required(ErrorMessage = "El método de pago es obligatorio.")]
         [System.ComponentModel.DataAnnotations.Display(Name = "Método de pago")]
-        public string MetodoPago { get; set; }
+        public string MetodoPago { get; set; } // TODO: cambiar a enum MetodoPago cuando esté definido
 
         [Required]
         [Range(0.0, 999.99, ErrorMessage = "El precio total debe ser positivo.")]
@@ -48,5 +48,15 @@ namespace AppForSEII.API.Models
 
         // --- Propiedad de navegación según la relación del diagrama ---
         public IList<CompeticionInscrita> CompeticionesInscritas { get; set; }
+
+        // Datos de pago (ej. últimos 4 dígitos de tarjeta, IBAN ofuscado, etc.)
+        [Required]
+        [StringLength(200, ErrorMessage = "Los datos de pago no pueden superar los 200 caracteres.")]
+        [System.ComponentModel.DataAnnotations.Display(Name = "Datos de pago")]
+        public string DatosPago { get; set; }
+
+        // Propiedades de navegación caso de uso "Apuntarse a clase deportiva" se comentaron para evitar problemas de referencia circular en la serialización JSON 
+        // public ApplicationUser Cliente { get; set; }
+        // public IList<ClaseInscrita> ClasesInscritas { get; set; }
     }
 }

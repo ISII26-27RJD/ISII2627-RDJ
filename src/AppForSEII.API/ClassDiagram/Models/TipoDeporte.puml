@@ -1,0 +1,9 @@
+@startuml
+class TipoDeporte {
+    + Id : int <<get>> <<set>>
+    + Nombre : string <<get>> <<set>>
+    + Descripcion : string? <<get>> <<set>>
+    + Competiciones : IList<Competicion> <<get>> <<set>>
+    + ClasesDeportivas : IList<ClaseDeportiva> <<get>> <<set>>
+}
+@enduml

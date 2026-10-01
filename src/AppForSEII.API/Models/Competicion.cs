@@ -38,14 +38,14 @@ namespace AppForSEII.API.Models
         [System.ComponentModel.DataAnnotations.Display(Name = "Precio de la inscripción")]
         public decimal Precio { get; set; }
 
-
-        // Clave foránea para la relación con TipoDeporte (Relación N:1)
+        // Clave foránea y propiedad de navegación para la relación con TipoDeporte (Relación N:1)
         [Required]
         public int TipoDeporteId { get; set; }
 
         // [ForeignKey(nameof(TipoDeporteId))]
         // public TipoDeporte TipoDeporte { get; set; }
 
+        // Relación 1:N con la entidad intermedia CompeticionInscrita
         public IList<CompeticionInscrita> CompeticionesInscritas { get; set; }
     }
 }

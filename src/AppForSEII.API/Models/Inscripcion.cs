@@ -57,6 +57,6 @@ namespace AppForSEII.API.Models
 
         // Propiedades de navegación caso de uso "Apuntarse a clase deportiva" se comentaron para evitar problemas de referencia circular en la serialización JSON 
         // public ApplicationUser Cliente { get; set; }
-        // public IList<ClaseInscrita> ClasesInscritas { get; set; }
+        public IList<ClaseInscrita> ClasesInscritas { get; set; }
     }
 }

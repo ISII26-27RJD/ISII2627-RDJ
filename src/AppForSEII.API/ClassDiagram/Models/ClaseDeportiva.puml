@@ -1,0 +1,15 @@
+@startuml
+class ClaseDeportiva {
+    + Id : int <<get>> <<set>>
+    + Descripcion : string <<get>> <<set>>
+    + FechaHora : DateTime <<get>> <<set>>
+    + Lugar : string? <<get>> <<set>>
+    + Monitor : string <<get>> <<set>>
+    + Nivel : string <<get>> <<set>>
+    + PlazasDisponibles : int <<get>> <<set>>
+    + PrecioUnitario : decimal <<get>> <<set>>
+    + TipoDeporteId : int <<get>> <<set>>
+    + TipoDeporte : TipoDeporte <<get>> <<set>>
+    + ClasesInscritas : IList<ClaseInscrita> <<get>> <<set>>
+}
+@enduml

@@ -42,8 +42,8 @@ namespace AppForSEII.API.Models
         [Required]
         public int TipoDeporteId { get; set; }
 
-        // [ForeignKey(nameof(TipoDeporteId))]
-        // public TipoDeporte TipoDeporte { get; set; }
+        [ForeignKey(nameof(TipoDeporteId))]
+        public TipoDeporte TipoDeporte { get; set; }
 
         // Relación 1:N con la entidad intermedia CompeticionInscrita
         public IList<CompeticionInscrita> CompeticionesInscritas { get; set; }

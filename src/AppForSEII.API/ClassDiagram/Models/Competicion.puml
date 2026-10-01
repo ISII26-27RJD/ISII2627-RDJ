@@ -1,0 +1,13 @@
+@startuml
+class Competicion {
+    + Id : int <<get>> <<set>>
+    + Nombre : string <<get>> <<set>>
+    + Lugar : string <<get>> <<set>>
+    + Fecha : DateTime <<get>> <<set>>
+    + Plazas : int <<get>> <<set>>
+    + Precio : decimal <<get>> <<set>>
+    + TipoDeporteId : int <<get>> <<set>>
+    + TipoDeporte : TipoDeporte <<get>> <<set>>
+    + CompeticionesInscritas : IList<CompeticionInscrita> <<get>> <<set>>
+}
+@enduml

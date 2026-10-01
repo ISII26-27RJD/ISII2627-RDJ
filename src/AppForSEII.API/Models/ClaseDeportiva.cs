@@ -61,6 +61,6 @@ namespace AppForSEII.API.Models
 
         // public TipoDeporte TipoDeporte { get; set; }
 
-        // public IList<ClaseInscrita> ClasesInscritas { get; set; }
+        public IList<ClaseInscrita> ClasesInscritas { get; set; }
     }
 }

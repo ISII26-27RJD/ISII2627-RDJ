@@ -59,7 +59,7 @@ namespace AppForSEII.API.Models
 
         // Propiedades de navegación (hacer más adelante las relaciones)
 
-        // public TipoDeporte TipoDeporte { get; set; }
+        public TipoDeporte TipoDeporte { get; set; }
 
         public IList<ClaseInscrita> ClasesInscritas { get; set; }
     }

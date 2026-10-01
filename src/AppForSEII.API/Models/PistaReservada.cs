@@ -8,6 +8,35 @@ namespace AppForSEII.API.Models
     /// </summary>
     public class PistaReservada
     {
-        
+        //Esto es la clave primaria
+        [Key]
+        public int Id { get; set; }
+
+        // Minimo una pista a reservar
+        [Required]
+        [Range(1, 5, ErrorMessage = "La cantidad debe ser al menos 1.")]
+        public int Cantidad { get; set; }
+
+        [Required]
+        [DataType(System.ComponentModel.DataAnnotations.DataType.Currency)]
+        [Precision(5, 2)]
+        public decimal Precio { get; set; }
+
+        // Al ser observaciones, usamos nullable (string?) y tipo multilínea
+        [StringLength(500, ErrorMessage = "Las observaciones no pueden exceder los 500 caracteres.")]
+        [DataType(System.ComponentModel.DataAnnotations.DataType.MultilineText)]
+        public string? Observaciones { get; set; }
+
+        // Claves foráneas escalares (Requeridas para la relación 1:N)
+        [Required]
+        public int IdPista { get; set; }
+
+        //Esto también es clave foránea
+        [Required]
+        public int IdReserva { get; set; }
+
+        // TODO: Propiedades de navegación (Se implementarán en la fase de relaciones)
+        // public Pista Pista { get; set; }
+        // public Reserva Reserva { get; set; }
     }
 }

@@ -37,7 +37,7 @@ namespace AppForSEII.API.Models
 
         [Required(ErrorMessage = "El método de pago es obligatorio.")]
         [System.ComponentModel.DataAnnotations.Display(Name = "Método de pago")]
-        public MetodoPago MetodoPago { get; set; }
+        // public MetodoPago MetodoPago { get; set; } quitar cuando se haga la clase de enumeración MetodoPago
 
         [Required]
         [Range(0.0, 999.99, ErrorMessage = "El precio total debe ser positivo.")]

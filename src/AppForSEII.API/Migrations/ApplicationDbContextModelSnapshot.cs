@@ -30,8 +30,15 @@ namespace AppForSEII.API.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<int>("Age")
+                        .HasColumnType("int");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DNI")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
@@ -48,6 +55,7 @@ namespace AppForSEII.API.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
@@ -71,9 +79,15 @@ namespace AppForSEII.API.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Sex")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.Property<string>("Surname")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
@@ -93,6 +107,254 @@ namespace AppForSEII.API.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("AppForSEII.API.Models.ClaseDeportiva", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("FechaHora")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Lugar")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Monitor")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Nivel")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("PlazasDisponibles")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("PrecioUnitario")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<int>("TipoDeporteId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TipoDeporteId");
+
+                    b.ToTable("ClaseDeportiva");
+                });
+
+            modelBuilder.Entity("AppForSEII.API.Models.ClaseInscrita", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClaseDeportivaId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("InscripcionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Observaciones")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<int>("PlazasReservadas")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Precio")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClaseDeportivaId");
+
+                    b.HasIndex("InscripcionId");
+
+                    b.ToTable("ClaseInscrita");
+                });
+
+            modelBuilder.Entity("AppForSEII.API.Models.Competicion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Lugar")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("Plazas")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Precio")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<int>("TipoDeporteId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TipoDeporteId");
+
+                    b.ToTable("Competicion");
+                });
+
+            modelBuilder.Entity("AppForSEII.API.Models.CompeticionInscrita", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CompeticionId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("InscripcionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ProblemasFisicos")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompeticionId");
+
+                    b.HasIndex("InscripcionId");
+
+                    b.ToTable("CompeticionInscrita");
+                });
+
+            modelBuilder.Entity("AppForSEII.API.Models.Inscripcion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ApellidosUsuario")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ClienteId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("DNI")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DatosPago")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("FechaInscripcion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("MetodoPago")
+                        .HasColumnType("int");
+
+                    b.Property<string>("NombreUsuario")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal>("PrecioTotal")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("Telefono")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClienteId");
+
+                    b.ToTable("Inscripciones");
+                });
+
+            modelBuilder.Entity("AppForSEII.API.Models.Pista", b =>
+                {
+                    b.Property<int>("IdPista")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdPista"));
+
+                    b.Property<int>("NPersonas")
+                        .HasColumnType("int");
+
+                    b.Property<string>("NombrePista")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal>("Precio")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<int>("Stock")
+                        .HasColumnType("int");
+
+                    b.HasKey("IdPista");
+
+                    b.ToTable("Pistas");
+                });
+
+            modelBuilder.Entity("AppForSEII.API.Models.TipoDeporte", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Descripcion")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TipoDeporte");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -228,6 +490,77 @@ namespace AppForSEII.API.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("AppForSEII.API.Models.ClaseDeportiva", b =>
+                {
+                    b.HasOne("AppForSEII.API.Models.TipoDeporte", "TipoDeporte")
+                        .WithMany("ClasesDeportivas")
+                        .HasForeignKey("TipoDeporteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TipoDeporte");
+                });
+
+            modelBuilder.Entity("AppForSEII.API.Models.ClaseInscrita", b =>
+                {
+                    b.HasOne("AppForSEII.API.Models.ClaseDeportiva", "ClaseDeportiva")
+                        .WithMany("ClasesInscritas")
+                        .HasForeignKey("ClaseDeportivaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AppForSEII.API.Models.Inscripcion", "Inscripcion")
+                        .WithMany("ClasesInscritas")
+                        .HasForeignKey("InscripcionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ClaseDeportiva");
+
+                    b.Navigation("Inscripcion");
+                });
+
+            modelBuilder.Entity("AppForSEII.API.Models.Competicion", b =>
+                {
+                    b.HasOne("AppForSEII.API.Models.TipoDeporte", "TipoDeporte")
+                        .WithMany("Competiciones")
+                        .HasForeignKey("TipoDeporteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TipoDeporte");
+                });
+
+            modelBuilder.Entity("AppForSEII.API.Models.CompeticionInscrita", b =>
+                {
+                    b.HasOne("AppForSEII.API.Models.Competicion", "Competicion")
+                        .WithMany("CompeticionesInscritas")
+                        .HasForeignKey("CompeticionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AppForSEII.API.Models.Inscripcion", "Inscripcion")
+                        .WithMany("CompeticionesInscritas")
+                        .HasForeignKey("InscripcionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Competicion");
+
+                    b.Navigation("Inscripcion");
+                });
+
+            modelBuilder.Entity("AppForSEII.API.Models.Inscripcion", b =>
+                {
+                    b.HasOne("AppForSEII.API.Models.ApplicationUser", "Cliente")
+                        .WithMany("Inscripciones")
+                        .HasForeignKey("ClienteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cliente");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -277,6 +610,35 @@ namespace AppForSEII.API.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("AppForSEII.API.Models.ApplicationUser", b =>
+                {
+                    b.Navigation("Inscripciones");
+                });
+
+            modelBuilder.Entity("AppForSEII.API.Models.ClaseDeportiva", b =>
+                {
+                    b.Navigation("ClasesInscritas");
+                });
+
+            modelBuilder.Entity("AppForSEII.API.Models.Competicion", b =>
+                {
+                    b.Navigation("CompeticionesInscritas");
+                });
+
+            modelBuilder.Entity("AppForSEII.API.Models.Inscripcion", b =>
+                {
+                    b.Navigation("ClasesInscritas");
+
+                    b.Navigation("CompeticionesInscritas");
+                });
+
+            modelBuilder.Entity("AppForSEII.API.Models.TipoDeporte", b =>
+                {
+                    b.Navigation("ClasesDeportivas");
+
+                    b.Navigation("Competiciones");
                 });
 #pragma warning restore 612, 618
         }

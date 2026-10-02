@@ -17,6 +17,14 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
 
     public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+    public DbSet<Inscripcion> Inscripciones { get; set; }
+    public DbSet<Pista> Pistas { get; set; } // Asignación explícita de las clases que tendrá la base de datos
+
+    public DbSet<TipoDeporte> TiposDeportes { get; set; }
+
+    public DbSet<ClaseInscrita> ClasesInscritas { get; set; }
+
+    public DbSet<ClaseDeportiva> ClasesDeportivas { get; set; }
     public DbSet<MaterialAlquilado> MaterialesAlquilados{get; set;}
     public DbSet<Material> Materiales{get; set;}
     public DbSet<Alquiler> Alquileres{get; set;}

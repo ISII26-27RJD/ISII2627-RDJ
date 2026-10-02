@@ -43,7 +43,20 @@ namespace AppForSEII.API.Models
         [Precision(5, 2)]
         public decimal PrecioTotal { get; set; }
 
-        // TODO: Propiedades de navegación (Se implementarán al finalizar todas las clases)
-        // public IList<PistaReservada> PistasReservadas { get; set; }
+        // RELACIÓN 1:N -> Una reserva contiene el desglose de múltiples pistas seleccionadas
+        public IList<PistaReservada> PistasReservadas { get; set; } = new List<PistaReservada>();
+
+        // CONSTRUCTORES
+        public Reserva() { } // Requerido por EF Core
+
+        public Reserva(string nombreCliente, string apellidos, string dni, DateTime fechaReserva, MetodoPago metodoPago, decimal precioTotal)
+        {
+            NombreCliente = nombreCliente;
+            Apellidos = apellidos;
+            Dni = dni;
+            FechaReserva = fechaReserva;
+            MetodoPago = metodoPago;
+            PrecioTotal = precioTotal;
+        }
     }
 }

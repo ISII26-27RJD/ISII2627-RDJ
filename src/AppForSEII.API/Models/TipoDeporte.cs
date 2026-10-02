@@ -45,8 +45,6 @@ namespace AppForSEII.API.Models
         // Navegación caso de uso "Apuntarse a clase deportiva"
         public IList<ClaseDeportiva> ClasesDeportivas { get; set; }
 
-        public IList<Material> Materiales { get; set; }
-
-        public IList<Pista> Pistas { get; set; }
+        public IList<Material> Material{get; set;}
     }
 }

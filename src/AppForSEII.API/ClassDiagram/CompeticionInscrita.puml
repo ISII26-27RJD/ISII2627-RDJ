@@ -7,4 +7,8 @@ class CompeticionInscrita {
     + Inscripcion : Inscripcion <<get>> <<set>>
     + Competicion : Competicion <<get>> <<set>>
 }
+
+CompeticionInscrita "*" --> "1" Inscripcion : Inscripcion
+CompeticionInscrita "*" --> "1" Competicion : Competicion
+
 @enduml

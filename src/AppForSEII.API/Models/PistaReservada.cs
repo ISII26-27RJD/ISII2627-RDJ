@@ -27,16 +27,28 @@ namespace AppForSEII.API.Models
         [DataType(System.ComponentModel.DataAnnotations.DataType.MultilineText)]
         public string? Observaciones { get; set; }
 
-        // Claves foráneas escalares (Requeridas para la relación 1:N)
+        // RELACIÓN N:1 -> Esta fila pertenece a UNA Pista concreta
         [Required]
         public int IdPista { get; set; }
+        public Pista Pista { get; set; }
 
-        //Esto también es clave foránea
+        // RELACIÓN N:1 -> Esta fila pertenece a UNA Reserva concreta
         [Required]
         public int IdReserva { get; set; }
+        public Reserva Reserva { get; set; }
 
-        // TODO: Propiedades de navegación (Se implementarán en la fase de relaciones)
-        // public Pista Pista { get; set; }
-        // public Reserva Reserva { get; set; }
+        // CONSTRUCTORES
+        public PistaReservada() { } // Requerido por EF Core
+
+        public PistaReservada(int cantidad, decimal precio, string? observaciones, int idPista, int idReserva)
+        {
+            Cantidad = cantidad;
+            Precio = precio;
+            Observaciones = observaciones;
+            IdPista = idPista;
+            IdReserva = idReserva;
+        }
+
+        
     }
 }

@@ -1,5 +1,7 @@
 @startuml
 class ClaseDeportiva {
+    + ClaseDeportiva()
+    + ClaseDeportiva(descripcion:string, fechaHora:DateTime, monitor:string, nivel:string, plazasDisponibles:int, precioUnitario:decimal, tipoDeporteId:int, lugar:string?)
     + Id : int <<get>> <<set>>
     + Descripcion : string <<get>> <<set>>
     + FechaHora : DateTime <<get>> <<set>>
@@ -12,4 +14,7 @@ class ClaseDeportiva {
     + TipoDeporte : TipoDeporte <<get>> <<set>>
     + ClasesInscritas : IList<ClaseInscrita> <<get>> <<set>>
 }
+
+ClaseDeportiva "*" --> "1" TipoDeporte : TipoDeporte
+ClaseDeportiva "1" --> "*" ClaseInscrita : ClasesInscritas
 @enduml

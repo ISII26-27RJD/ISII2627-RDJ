@@ -8,6 +8,26 @@ namespace AppForSEII.API.Models
 {
     public class Competicion
     {
+
+        public Competicion()
+        {
+        }
+
+        // Constructor con parámetros para crear instancias desde código
+        public Competicion(string lugar, DateTime fecha, int plazas, decimal precio, int tipoDeporteId, string nombre)
+        {
+            Lugar             = lugar;
+            Fecha             = fecha;
+            Plazas            = plazas;
+            Precio            = precio;
+            TipoDeporteId     = tipoDeporteId;
+            Nombre            = nombre;
+            
+        
+        }
+
+
+
         [Key]
         public int Id { get; set; }
 

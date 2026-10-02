@@ -1,0 +1,10 @@
+@startuml
+
+!include .\\Alquiler.puml
+!include .\\ApplicationUser.puml
+!include .\\Material.puml
+!include .\\MaterialAlquilado.puml
+!include .\\TipoDeporte.puml
+!include .\\TipoMaterial.puml
+
+@enduml

@@ -1,0 +1,6 @@
+@startuml
+!include .\\Competicion.puml
+!include .\\CompeticionInscrita.puml
+!include .\\Inscripcion.puml
+!include .\\TipoDeporte.puml
+@enduml

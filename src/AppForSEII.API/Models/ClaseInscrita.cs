@@ -6,6 +6,21 @@ namespace AppForSEII.API.Models
 {
     public class ClaseInscrita
     {
+        // Constructor vacío requerido por Entity Framework Core
+        public ClaseInscrita()
+        {
+        }
+
+        // Constructor con parámetros para crear instancias desde código
+        public ClaseInscrita(int claseDeportivaId, int inscripcionId, int plazasReservadas, decimal precio, string? observaciones = null)
+        {
+            ClaseDeportivaId = claseDeportivaId;
+            InscripcionId    = inscripcionId;
+            PlazasReservadas = plazasReservadas;
+            Precio           = precio;
+            Observaciones    = observaciones;
+        }
+
         // --- PROPIEDADES / ATRIBUTOS DEL DIAGRAMA ---
 
         [Key]

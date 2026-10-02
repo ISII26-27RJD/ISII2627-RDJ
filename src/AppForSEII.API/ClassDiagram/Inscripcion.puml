@@ -17,5 +17,6 @@ class Inscripcion {
 }
 
 Inscripcion "*" --> "1" ApplicationUser : Cliente
-Inscripcion "*" --> "1" MetodoPago : MetodoPago
+ClaseInscrita "1" --> "*" Inscripcion : ClasesInscritas
+
 @enduml

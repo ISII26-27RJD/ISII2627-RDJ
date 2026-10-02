@@ -1,0 +1,23 @@
+@startuml
+class Alquiler {
+    + Alquiler()
+    + IdAlquiler : int <<get>> <<set>>
+    + NombreUsuario : string <<get>> <<set>>
+    + ApellidosUsuario : string <<get>> <<set>>
+    + DNI : string <<get>> <<set>>
+    + NumeroTelefono : string <<get>> <<set>>
+    + FechaAlquiler : DateTime <<get>> <<set>>
+    + FechaInicioAlquiler : DateTime <<set>> <<get>>
+    + FechaFinAlquiler : DateTime <<get>> <<set>>
+    + PrecioTotal : decimal <<get>> <<set>>
+    + MetodoPago : MetodoPagoTipos <<get>> <<set>>
+    + MaterialesAlquilados : List<MaterialAlquilado> <<get>> <<set>>
+}
+enum MetodoPagoTipos {
+    Bizum,
+    Efectivo,
+    Tarjeta,
+    Transferencia,
+}
+Alquiler +-- MetodoPagoTipos
+@enduml

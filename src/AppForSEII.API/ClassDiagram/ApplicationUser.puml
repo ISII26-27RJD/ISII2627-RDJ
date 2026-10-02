@@ -9,5 +9,4 @@ class ApplicationUser {
     + Sex : string <<get>> <<set>>
     + Inscripciones : IList<Inscripcion> <<get>> <<set>>
 }
-IdentityUser <|-- ApplicationUser
 @enduml

@@ -1,5 +1,7 @@
 @startuml
 class ClaseInscrita {
+    + ClaseInscrita()
+    + ClaseInscrita(claseDeportivaId:int, inscripcionId:int, plazasReservadas:int, precio:decimal, observaciones:string?)
     + Id : int <<get>> <<set>>
     + ClaseDeportivaId : int <<get>> <<set>>
     + InscripcionId : int <<get>> <<set>>
@@ -9,4 +11,7 @@ class ClaseInscrita {
     + Inscripcion : Inscripcion <<get>> <<set>>
     + ClaseDeportiva : ClaseDeportiva <<get>> <<set>>
 }
+
+ClaseInscrita "*" --> "1" Inscripcion : Inscripcion
+ClaseDeportiva "*" --> "1" ClaseInscrita : ClaseDeportiva
 @enduml

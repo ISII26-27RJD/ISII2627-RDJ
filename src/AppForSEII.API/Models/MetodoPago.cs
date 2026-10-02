@@ -7,6 +7,6 @@ namespace AppForSEII.API.Models
         Efectivo,
         Tarjeta,
         Transferencia,
-        Metalico
+        Metálico
     }
 }

@@ -7,6 +7,26 @@ namespace AppForSEII.API.Models
 {
     public class Inscripcion
     {
+        // Constructor vacío requerido por Entity Framework Core
+        public Inscripcion()
+        {
+        }
+
+        // Constructor con parámetros para crear instancias desde código
+        public Inscripcion(string nombreUsuario, string apellidosUsuario, string dni,
+                           string telefono, DateTime fechaInscripcion, MetodoPago metodoPago,
+                           decimal precioTotal, string datosPago)
+        {
+            NombreUsuario    = nombreUsuario;
+            ApellidosUsuario = apellidosUsuario;
+            DNI              = dni;
+            Telefono         = telefono;
+            FechaInscripcion = fechaInscripcion;
+            MetodoPago       = metodoPago;
+            PrecioTotal      = precioTotal;
+            DatosPago        = datosPago;
+        }
+
         [Key]
         public int Id { get; set; }
 

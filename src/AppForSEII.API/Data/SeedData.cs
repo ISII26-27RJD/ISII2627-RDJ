@@ -190,6 +190,7 @@ namespace AppForSEII.API.Data
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         public static void SeedCompeticionesInscritas(ApplicationDbContext dbContext) 
         {
             if (!dbContext.CompeticionesInscritas.Any()) {
@@ -211,6 +212,9 @@ namespace AppForSEII.API.Data
 
 =======
 >>>>>>> 68a7bf1a3b393de76f29930dbb20f4c7232699a1
+=======
+
+>>>>>>> 607f3c12882e9fcd140d5032060cbfd37b07a83a
         // =========================================================================
         // MÉTODO: SeedClasesDeportivas (caso de uso: Apuntarse a Clase Deportiva)
         // =========================================================================

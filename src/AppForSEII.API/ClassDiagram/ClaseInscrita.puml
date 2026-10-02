@@ -13,5 +13,5 @@ class ClaseInscrita {
 }
 
 ClaseInscrita "*" --> "1" Inscripcion : Inscripcion
-ClaseInscrita "*" --> "1" ClaseDeportiva : ClaseDeportiva
+ClaseDeportiva "*" --> "1" ClaseInscrita : ClaseDeportiva
 @enduml

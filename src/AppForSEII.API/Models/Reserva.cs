@@ -35,9 +35,8 @@ namespace AppForSEII.API.Models
         public DateTime FechaReserva { get; set; }
 
         // El texto del CU indica que será Bizum, Efectivo, Tarjeta, etc.
-        [Required]
-        [StringLength(30, ErrorMessage = "El método de pago no es válido.")]
-        public string MetodoPago { get; set; }
+        [Required(ErrorMessage = "El método de pago es obligatorio.")]
+        public MetodoPago MetodoPago { get; set; }
 
         [Required]
         [DataType(System.ComponentModel.DataAnnotations.DataType.Currency)]

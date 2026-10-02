@@ -13,4 +13,6 @@ class TipoDeporte {
 }
 TipoDeporte "1" --> "*" ClaseDeportiva : ClaseDeportiva
 
+TipoDeporte "1" --> "*" Competicion : Competiciones
+
 @enduml

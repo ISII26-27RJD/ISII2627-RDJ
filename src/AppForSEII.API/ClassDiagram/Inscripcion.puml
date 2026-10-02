@@ -16,7 +16,7 @@ class Inscripcion {
     + ClasesInscritas : IList<ClaseInscrita> <<get>> <<set>>
 }
 
-Inscripcion "*" --> "1" ApplicationUser : Cliente
-ClaseInscrita "1" --> "*" Inscripcion : ClasesInscritas
+Inscripcion "1" --> "*" ApplicationUser : Cliente
+Inscripcion "1" --> "*" ClaseInscrita : ClasesInscritas
 
 @enduml

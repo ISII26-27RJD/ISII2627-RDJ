@@ -11,6 +11,6 @@ class TipoDeporte {
     + Materiales : IList<Material> <<get>> <<set>>
     + Pistas : IList<Pista> <<get>> <<set>>
 }
-ClaseDeportiva "1" --> "*" TipoDeporte : ClaseDeportiva
+TipoDeporte "1" --> "*" ClaseDeportiva : ClaseDeportiva
 
 @enduml

@@ -28,5 +28,8 @@ namespace AppForSEII.API.Models
         public IList<ClaseDeportiva> ClasesDeportivas { get; set; }
 
         public IList<Material> Material{get; set;}
+
+        // RELACIÓN 1:N -> Un TipoDeporte agrupa múltiples Pistas
+        public IList<Pista> Pistas { get; set; } = new List<Pista>();
     }
 }

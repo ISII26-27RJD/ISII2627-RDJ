@@ -7,4 +7,6 @@
 !include .\\ApplicationUser.puml
 !include .\\Inscripcion.puml
 
+hide Competicion
+hide CompeticionInscrita
 @enduml

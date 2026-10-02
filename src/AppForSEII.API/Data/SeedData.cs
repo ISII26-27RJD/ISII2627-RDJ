@@ -32,10 +32,17 @@ namespace AppForSEII.API.Data
 
             // --- INICIALIZACIÓN DE DATOS PARA COMPETICIONES E INSCRIPCIONES ---
             try {
-                SeedTiposDeporteYCompeticiones(dbContext);
+                SeedTiposDeporte(dbContext);
             }
             catch (Exception ex) {
-                logger.LogError(ex, "An error occurred seeding TiposDeporte and Competiciones in the Database.");
+                logger.LogError(ex, "An error occurred seeding TiposDeporte in the Database.");
+            }
+
+            try {
+                SeedCompeticiones(dbContext);
+            }
+            catch (Exception ex) {
+                logger.LogError(ex, "An error occurred seeding Competiciones in the Database.");
             }
 
             try {
@@ -105,46 +112,43 @@ namespace AppForSEII.API.Data
         // =========================================================================
         // MÉTODO: SeedTiposDeporteYCompeticiones
         // =========================================================================
-        public static void SeedTiposDeporteYCompeticiones(ApplicationDbContext dbContext) 
+        public static void SeedTiposDeporte(ApplicationDbContext dbContext) 
         {
             string[] nombresDeportes = ["Pádel", "Tenis", "Baloncesto", "Fútbol 7"];
-            List<TipoDeporte> tiposDeporte = new List<TipoDeporte>();
 
-            var tiposDeportesSet = dbContext.Set<TipoDeporte>();
             foreach (string nombreDeporte in nombresDeportes) {
-                var tipo = tiposDeportesSet.FirstOrDefault(t => t.Nombre == nombreDeporte);
-                if (tipo == null) {
-                    tipo = new TipoDeporte { Nombre = nombreDeporte };
-                    tiposDeportesSet.Add(tipo);
+                if (dbContext.TiposDeportes.FirstOrDefault(t => t.Nombre == nombreDeporte) == null) {
+                    dbContext.TiposDeportes.Add(new TipoDeporte { Nombre = nombreDeporte });
                 }
-                tiposDeporte.Add(tipo);
             }
             dbContext.SaveChanges();
+        }
 
-            // Insertar Competiciones si no existen
-            var competicionesSet = dbContext.Set<Competicion>();
-            if (competicionesSet.FirstOrDefault(c => c.Nombre == "Torneo Otoño Pádel 2026") == null) {
-                var competicion1 = new Competicion {
+        public static void SeedCompeticiones(ApplicationDbContext dbContext) 
+        {
+            var tipoPadel = dbContext.TiposDeportes.FirstOrDefault(t => t.Nombre == "Pádel");
+            var tipoTenis = dbContext.TiposDeportes.FirstOrDefault(t => t.Nombre == "Tenis");
+
+            if (tipoPadel != null && dbContext.Competiciones.FirstOrDefault(c => c.Nombre == "Torneo Otoño Pádel 2026") == null) {
+                dbContext.Competiciones.Add(new Competicion {
                     Nombre = "Torneo Otoño Pádel 2026",
                     Lugar = "Pabellón Universitario IMD",
                     Fecha = DateTime.Now.AddDays(15),
                     Plazas = 16,
                     Precio = 15.50m,
-                    TipoDeporteId = tiposDeporte[0].Id
-                };
-                competicionesSet.Add(competicion1);
+                    TipoDeporteId = tipoPadel.Id
+                });
             }
 
-            if (competicionesSet.FirstOrDefault(c => c.Nombre == "Liga Local Tenis Individual") == null) {
-                var competicion2 = new Competicion {
+            if (tipoTenis != null && dbContext.Competiciones.FirstOrDefault(c => c.Nombre == "Liga Local Tenis Individual") == null) {
+                dbContext.Competiciones.Add(new Competicion {
                     Nombre = "Liga Local Tenis Individual",
                     Lugar = "Club Tenis Albacete",
                     Fecha = DateTime.Now.AddDays(30),
                     Plazas = 32,
                     Precio = 20.00m,
-                    TipoDeporteId = tiposDeporte[1].Id
-                };
-                competicionesSet.Add(competicion2);
+                    TipoDeporteId = tipoTenis.Id
+                });
             }
 
             dbContext.SaveChanges();
@@ -180,6 +184,25 @@ namespace AppForSEII.API.Data
 
                     inscripcion.CompeticionesInscritas.Add(competicionInscrita);
                     dbContext.Inscripciones.Add(inscripcion);
+                    dbContext.SaveChanges();
+                }
+            }
+        }
+
+        public static void SeedCompeticionesInscritas(ApplicationDbContext dbContext) 
+        {
+            if (!dbContext.CompeticionesInscritas.Any()) {
+                var inscripcion = dbContext.Inscripciones.FirstOrDefault();
+                var competicion = dbContext.Competiciones.FirstOrDefault();
+
+                if (inscripcion != null && competicion != null) {
+                    var competicionInscrita = new CompeticionInscrita {
+                        InscripcionId = inscripcion.Id,
+                        CompeticionId = competicion.Id,
+                        ProblemasFisicos = "Ninguno"
+                    };
+
+                    dbContext.CompeticionesInscritas.Add(competicionInscrita);
                     dbContext.SaveChanges();
                 }
             }

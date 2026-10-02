@@ -1,0 +1,4 @@
+@startuml
+hide methods
+!include ClassDiagram/CU-ClaseDeportiva.puml
+@enduml

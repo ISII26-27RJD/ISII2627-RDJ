@@ -1,0 +1,10 @@
+@startuml
+
+!include .\\TipoDeporte.puml
+!include .\\MetodoPago.puml
+!include .\\ClaseInscrita.puml
+!include .\\ClaseDeportiva.puml
+!include .\\ApplicationUser.puml
+!include .\\Inscripcion.puml
+
+@enduml

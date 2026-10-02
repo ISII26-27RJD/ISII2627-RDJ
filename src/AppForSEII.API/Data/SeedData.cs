@@ -189,24 +189,6 @@ namespace AppForSEII.API.Data
             }
         }
 
-        public static void SeedCompeticionesInscritas(ApplicationDbContext dbContext) 
-        {
-            if (!dbContext.CompeticionesInscritas.Any()) {
-                var inscripcion = dbContext.Inscripciones.FirstOrDefault();
-                var competicion = dbContext.Competiciones.FirstOrDefault();
-
-                if (inscripcion != null && competicion != null) {
-                    var competicionInscrita = new CompeticionInscrita {
-                        InscripcionId = inscripcion.Id,
-                        CompeticionId = competicion.Id,
-                        ProblemasFisicos = "Ninguno"
-                    };
-
-                    dbContext.CompeticionesInscritas.Add(competicionInscrita);
-                    dbContext.SaveChanges();
-                }
-            }
-        }
 
         // =========================================================================
         // MÉTODO: SeedClasesDeportivas (caso de uso: Apuntarse a Clase Deportiva)

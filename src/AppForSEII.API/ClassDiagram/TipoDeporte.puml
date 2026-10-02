@@ -1,9 +1,16 @@
 @startuml
 class TipoDeporte {
+    + TipoDeporte()
+    + TipoDeporte(nombre:string, nombreTipoDeporte:string, descripcion:string?)
     + Id : int <<get>> <<set>>
     + Nombre : string <<get>> <<set>>
+    + NombreTipoDeporte : string <<get>> <<set>>
     + Descripcion : string? <<get>> <<set>>
     + Competiciones : IList<Competicion> <<get>> <<set>>
     + ClasesDeportivas : IList<ClaseDeportiva> <<get>> <<set>>
+    + Materiales : IList<Material> <<get>> <<set>>
+    + Pistas : IList<Pista> <<get>> <<set>>
 }
+TipoDeporte "1" --> "*" ClaseDeportiva : ClaseDeportiva
+
 @enduml

@@ -7,6 +7,26 @@ namespace AppForSEII.API.Models
     
     public class ClaseDeportiva
     {
+        // Constructor vacío requerido por Entity Framework Core
+        public ClaseDeportiva()
+        {
+        }
+
+        // Constructor con parámetros para crear instancias desde código
+        public ClaseDeportiva(string descripcion, DateTime fechaHora, string monitor,
+                              string nivel, int plazasDisponibles, decimal precioUnitario,
+                              int tipoDeporteId, string? lugar = null)
+        {
+            Descripcion       = descripcion;
+            FechaHora         = fechaHora;
+            Monitor           = monitor;
+            Nivel             = nivel;
+            PlazasDisponibles = plazasDisponibles;
+            PrecioUnitario    = precioUnitario;
+            TipoDeporteId     = tipoDeporteId;
+            Lugar             = lugar;
+        }
+
         [Key]
         public int Id { get; set; }
 

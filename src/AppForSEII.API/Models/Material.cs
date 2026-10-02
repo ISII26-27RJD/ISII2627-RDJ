@@ -1,0 +1,33 @@
+using System.ComponentModel.DataAnnotations;
+using DisplayAttribute = System.ComponentModel.DataAnnotations.DisplayAttribute;
+
+namespace AppForSEII.API.Models
+{
+    
+    public class Material
+    {
+        public Material(){}
+
+        [Key]
+        public int IdMaterial{get; set;}
+
+        [Required]
+        [Display(Name = "Cantidad Material")]
+        [Range(0,200,ErrorMessage ="Minimo 0, Maximum 200")]
+        public int Cantidad{get; set;}
+
+        [Required]
+        [Display(Name = "Nombre Material")]
+        [StringLength(50, ErrorMessage = "nombre entre 3 y 50 caracteres",MinimumLength=3)]
+        public string Nombre{get; set;}
+
+        [Required]
+        [Display(Name = "Precio Material")]
+        [Range(1,200,ErrorMessage ="Minimo 1, Maximum 200")]        
+        public decimal Precio{get; set;}
+
+        public List<MaterialAlquilado> MaterialAlquilados{get; set;}
+
+        public TipoMaterial TipoMaterial{get; set;}
+    }
+}

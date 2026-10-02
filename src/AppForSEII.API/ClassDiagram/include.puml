@@ -1,11 +1,12 @@
 @startuml
-!include .\\.\Models\ApplicationUser.puml
-!include .\\.\Models\ClaseDeportiva.puml
-!include .\\.\Models\ClaseInscrita.puml
-!include .\\.\Models\Competicion.puml
-!include .\\.\Models\CompeticionInscrita.puml
-!include .\\.\Models\Inscripcion.puml
-!include .\\.\Models\MetodoPago.puml
-!include .\\.\Models\Pista.puml
-!include .\\.\Models\TipoDeporte.puml
+!include .\\ApplicationUser.puml
+!include .\\ClaseDeportiva.puml
+!include .\\ClaseInscrita.puml
+!include .\\Competicion.puml
+!include .\\CompeticionInscrita.puml
+!include .\\Inscripcion.puml
+!include .\\MetodoPago.puml
+!include .\\Pista.puml
+!include .\\PistaReservada.puml
+!include .\\TipoDeporte.puml
 @enduml

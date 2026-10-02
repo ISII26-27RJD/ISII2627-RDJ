@@ -19,4 +19,6 @@ class Inscripcion {
 Inscripcion "1" --> "*" ApplicationUser : Cliente
 Inscripcion "1" --> "*" ClaseInscrita : ClasesInscritas
 
+Inscripcion "1" --> "*" CompeticionInscrita : CompeticionesInscritas
+
 @enduml

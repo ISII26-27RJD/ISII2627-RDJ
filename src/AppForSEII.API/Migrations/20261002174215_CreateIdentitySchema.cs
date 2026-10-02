@@ -77,23 +77,6 @@ namespace AppForSEII.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PistasReservadas",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Cantidad = table.Column<int>(type: "int", nullable: false),
-                    Precio = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: false),
-                    Observaciones = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    IdPista = table.Column<int>(type: "int", nullable: false),
-                    IdReserva = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PistasReservadas", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Reservas",
                 columns: table => new
                 {
@@ -332,7 +315,8 @@ namespace AppForSEII.API.Migrations
                     NPersonas = table.Column<int>(type: "int", nullable: false),
                     Precio = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: false),
                     Stock = table.Column<int>(type: "int", nullable: false),
-                    TipoDeporteId = table.Column<int>(type: "int", nullable: true)
+                    IdTipoDeporte = table.Column<int>(type: "int", nullable: false),
+                    TipoDeporteId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -341,7 +325,8 @@ namespace AppForSEII.API.Migrations
                         name: "FK_Pistas_TiposDeportes_TipoDeporteId",
                         column: x => x.TipoDeporteId,
                         principalTable: "TiposDeportes",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -424,6 +409,37 @@ namespace AppForSEII.API.Migrations
                         name: "FK_CompeticionesInscritas_Inscripciones_InscripcionId",
                         column: x => x.InscripcionId,
                         principalTable: "Inscripciones",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PistasReservadas",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Cantidad = table.Column<int>(type: "int", nullable: false),
+                    Precio = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: false),
+                    Observaciones = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    IdPista = table.Column<int>(type: "int", nullable: false),
+                    PistaIdPista = table.Column<int>(type: "int", nullable: false),
+                    IdReserva = table.Column<int>(type: "int", nullable: false),
+                    ReservaId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PistasReservadas", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PistasReservadas_Pistas_PistaIdPista",
+                        column: x => x.PistaIdPista,
+                        principalTable: "Pistas",
+                        principalColumn: "IdPista",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PistasReservadas_Reservas_ReservaId",
+                        column: x => x.ReservaId,
+                        principalTable: "Reservas",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -548,6 +564,16 @@ namespace AppForSEII.API.Migrations
                 name: "IX_Pistas_TipoDeporteId",
                 table: "Pistas",
                 column: "TipoDeporteId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PistasReservadas_PistaIdPista",
+                table: "PistasReservadas",
+                column: "PistaIdPista");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PistasReservadas_ReservaId",
+                table: "PistasReservadas",
+                column: "ReservaId");
         }
 
         /// <inheritdoc />
@@ -578,13 +604,7 @@ namespace AppForSEII.API.Migrations
                 name: "MaterialesAlquilados");
 
             migrationBuilder.DropTable(
-                name: "Pistas");
-
-            migrationBuilder.DropTable(
                 name: "PistasReservadas");
-
-            migrationBuilder.DropTable(
-                name: "Reservas");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -605,13 +625,19 @@ namespace AppForSEII.API.Migrations
                 name: "Materiales");
 
             migrationBuilder.DropTable(
+                name: "Pistas");
+
+            migrationBuilder.DropTable(
+                name: "Reservas");
+
+            migrationBuilder.DropTable(
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "TiposDeportes");
+                name: "TiposMateriales");
 
             migrationBuilder.DropTable(
-                name: "TiposMateriales");
+                name: "TiposDeportes");
         }
     }
 }

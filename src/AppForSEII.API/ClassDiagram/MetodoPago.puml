@@ -4,6 +4,6 @@ enum MetodoPago {
     Efectivo,
     Tarjeta,
     Transferencia,
-    Metalico,
+    Metálico,
 }
 @enduml

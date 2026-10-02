@@ -6,6 +6,7 @@ namespace AppForSEII.API.Models
         Bizum,
         Efectivo,
         Tarjeta,
-        Transferencia
+        Transferencia,
+        Metálico
     }
 }

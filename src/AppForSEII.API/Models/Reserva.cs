@@ -28,6 +28,7 @@ namespace AppForSEII.API.Models
         [RegularExpression(@"^\d{8}[A-Za-z]$", ErrorMessage = "El DNI debe tener el formato de 8 números seguidos de 1 letra.")]
         public string Dni { get; set; }
 
+        // La fecha de la reserva debe ser en formato dd/MM/yyyy y no puede ser una fecha futura.
         [Required]
         [DataType(System.ComponentModel.DataAnnotations.DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]

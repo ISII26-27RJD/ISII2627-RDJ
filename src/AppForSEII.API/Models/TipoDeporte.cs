@@ -16,6 +16,7 @@ namespace AppForSEII.API.Models
             Nombre            = nombre;
             NombreTipoDeporte = nombreTipoDeporte;
             Descripcion       = descripcion;
+        
         }
 
         [Key]

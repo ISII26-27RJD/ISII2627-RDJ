@@ -10,4 +10,8 @@ class Competicion {
     + TipoDeporte : TipoDeporte <<get>> <<set>>
     + CompeticionesInscritas : IList<CompeticionInscrita> <<get>> <<set>>
 }
+
+Competicion "*" --> "1" TipoDeporte : TipoDeporte
+Competicion "1" --> "*" CompeticionInscrita : CompeticionesInscritas
+
 @enduml

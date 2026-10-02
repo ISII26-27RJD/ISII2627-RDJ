@@ -6,6 +6,20 @@ namespace AppForSEII.API.Models
     
     public class CompeticionInscrita
     {
+
+        public CompeticionInscrita()
+        {
+        }
+
+        // Constructor con parámetros para crear instancias desde código
+        public CompeticionInscrita(int competicionId, int inscripcionId, string? problemasFisicos)
+        {
+            CompeticionId     = competicionId;
+            InscripcionId     = inscripcionId;
+            ProblemasFisicos  = problemasFisicos;
+        
+        }
+
         [Key]
         public int Id { get; set; }
 

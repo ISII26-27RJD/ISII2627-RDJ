@@ -1,0 +1,19 @@
+@startuml
+
+!include .\TipoDeporte.puml
+!include .\Pista.puml
+!include .\PistaReservada.puml
+!include .\Reserva.puml
+!include .\MetodoPago.puml
+
+' Ocultamos clases de los Casos de Uso 
+' que se puedan arrastran por culpa de las listas dentro de TipoDeporte
+hide Competicion
+hide ClaseDeportiva
+hide Material
+hide ApplicationUser
+hide Inscripcion
+hide CompeticionInscrita
+hide ClaseInscrita
+
+@enduml

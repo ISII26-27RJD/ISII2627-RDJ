@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AppForSEII.API.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -30,42 +31,29 @@ namespace AppForSEII.API.Data
                 logger.LogError(ex, "An error occurred seeding the Users in the Database.");
             }
 
-            // --- INICIALIZACIÓN DE DATOS PARA COMPETICIONES E INSCRIPCIONES ---
             try {
-                SeedTiposDeporteYCompeticiones(dbContext);
+                //it initializes the database with tipos de deporte, competiciones and clases deportivas
+                SeedTiposDeporteCompeticionesYClases(dbContext);
             }
             catch (Exception ex) {
-                logger.LogError(ex, "An error occurred seeding TiposDeporte and Competiciones in the Database.");
+                logger.LogError(ex, "An error occurred seeding the Sports and Classes in the Database.");
             }
 
             try {
                 var user = dbContext.Users.OfType<ApplicationUser>().FirstOrDefault(u => u.UserName == "peter@uclm.es");
-                SeedInscripcion(dbContext, user);
+
+                //it initializes the database with an Inscripcion
+                SeedInscripciones(dbContext, user);
             }
             catch (Exception ex) {
                 logger.LogError(ex, "An error occurred seeding an Inscripcion in the Database.");
-            }
-
-            // --- INICIALIZACIÓN DE DATOS PARA CLASES DEPORTIVAS ---
-            try {
-                SeedClasesDeportivas(dbContext);
-            }
-            catch (Exception ex) {
-                logger.LogError(ex, "An error occurred seeding ClasesDeportivas in the Database.");
-            }
-
-            try {
-                var user = dbContext.Users.OfType<ApplicationUser>().FirstOrDefault(u => u.UserName == "peter@uclm.es");
-                SeedInscripcionClaseDeportiva(dbContext, user);
-            }
-            catch (Exception ex) {
-                logger.LogError(ex, "An error occurred seeding InscripcionClaseDeportiva in the Database.");
             }
         }
 
         public static void SeedRoles(RoleManager<IdentityRole> roleManager, List<string> roles) 
         {
             foreach (string roleName in roles) {
+                //it checks such role does not exist in the database 
                 if (!roleManager.RoleExistsAsync(roleName).Result) {
                     IdentityRole role = new IdentityRole();
                     role.Name = roleName;
@@ -77,35 +65,49 @@ namespace AppForSEII.API.Data
 
         public static void SeedUsers(UserManager<ApplicationUser> userManager, List<string> roles) 
         {
+            //first, it checks the user does not already exist in the DB
             if (userManager.FindByNameAsync("elena@uclm.es").Result == null) {
-                ApplicationUser user = new ApplicationUser("1", "Elena", "Navarro Martínez", "elena@uclm.es");
+                ApplicationUser user = new ApplicationUser("1", "Elena", "Navarro Martínez", "elena@uclm.es", "11111111A", 45, "Femenino");
                 user.EmailConfirmed = true;
 
                 var result = userManager.CreateAsync(user, "Password1234%");
                 result.Wait();
 
                 if (result.IsCompletedSuccessfully) {
+                    //administrator role
                     userManager.AddToRoleAsync(user, roles[0]).Wait();
                 }
             }
 
+            if (userManager.FindByNameAsync("gregorio@uclm.es").Result == null) {
+                ApplicationUser user = new ApplicationUser("2", "Gregorio", "Diaz Descalzo", "gregorio@uclm.es", "22222222B", 50, "Masculino");
+                user.EmailConfirmed = true;
+
+                var result = userManager.CreateAsync(user, "APassword1234%");
+                result.Wait();
+
+                if (result.IsCompletedSuccessfully) {
+                    //employee role
+                    userManager.AddToRoleAsync(user, roles[1]).Wait();
+                }
+            }
+
             if (userManager.FindByNameAsync("peter@uclm.es").Result == null) {
-                ApplicationUser user = new ApplicationUser("3", "Peter", "Jackson", "peter@uclm.es");
+                //A customer class has been defined because it has different attributes
+                ApplicationUser user = new ApplicationUser("3", "Peter", "Jackson", "peter@uclm.es", "33333333C", 30, "Masculino");
                 user.EmailConfirmed = true;
 
                 var result = userManager.CreateAsync(user, "OtherPass12$");
                 result.Wait();
 
                 if (result.IsCompletedSuccessfully) {
+                    //customer role
                     userManager.AddToRoleAsync(user, roles[2]).Wait();
                 }
             }
         }
 
-        // =========================================================================
-        // MÉTODO: SeedTiposDeporteYCompeticiones
-        // =========================================================================
-        public static void SeedTiposDeporteYCompeticiones(ApplicationDbContext dbContext) 
+        public static void SeedTiposDeporteCompeticionesYClases(ApplicationDbContext dbContext) 
         {
             string[] nombresDeportes = ["Pádel", "Tenis", "Baloncesto", "Fútbol 7"];
             List<TipoDeporte> tiposDeporte = new List<TipoDeporte>();
@@ -114,7 +116,7 @@ namespace AppForSEII.API.Data
             foreach (string nombreDeporte in nombresDeportes) {
                 var tipo = tiposDeportesSet.FirstOrDefault(t => t.Nombre == nombreDeporte);
                 if (tipo == null) {
-                    tipo = new TipoDeporte { Nombre = nombreDeporte };
+                    tipo = new TipoDeporte(nombreDeporte, "Deporte de " + nombreDeporte);
                     tiposDeportesSet.Add(tipo);
                 }
                 tiposDeporte.Add(tipo);
@@ -147,157 +149,64 @@ namespace AppForSEII.API.Data
                 competicionesSet.Add(competicion2);
             }
 
+            // Insertar Clases Deportivas si no existen
+            var clasesSet = dbContext.Set<ClaseDeportiva>();
+            if (clasesSet.FirstOrDefault(c => c.Descripcion == "Clase introductoria de pádel para principiantes.") == null) {
+                clasesSet.Add(new ClaseDeportiva("Clase introductoria de pádel para principiantes.", DateTime.Now.AddDays(3).Date.AddHours(10), "Carlos Ruiz", "Principiante", 12, 8.00m, tiposDeporte[0].Id, "Pista Cubierta 1 — IMD"));
+            }
+
+            if (clasesSet.FirstOrDefault(c => c.Descripcion == "Clase de tenis nivel intermedio, enfocada en el saque.") == null) {
+                clasesSet.Add(new ClaseDeportiva("Clase de tenis nivel intermedio, enfocada en el saque.", DateTime.Now.AddDays(7).Date.AddHours(9), "Laura Gómez", "Intermedio", 10, 10.50m, tiposDeporte[1].Id, "Pista Exterior Tenis — Campus"));
+            }
+
+            //it saves the modification of dbcontext to the database
             dbContext.SaveChanges();
+
+            //Since EFCORE7, you can perform bulk updates with linq. Example:
+            //dbContext.Set<ClaseDeportiva>().ExecuteUpdate(s => s.SetProperty(c => c.PlazasDisponibles, c => c.PlazasDisponibles + 5));
         }
 
-        // =========================================================================
-        // MÉTODO: SeedInscripcion (caso de uso: Inscribirse en Competición)
-        // =========================================================================
-        public static void SeedInscripcion(ApplicationDbContext dbContext, ApplicationUser user) 
+        public static void SeedInscripciones(ApplicationDbContext dbContext, ApplicationUser user) 
         {
-            // Verificamos si existe al menos una inscripción creada
-            if (!dbContext.Inscripciones.Any()) {
+            if (user == null) return;
+
+            // Inscribirse a Competición
+            if (!dbContext.Inscripciones.Any(i => i.CompeticionesInscritas.Any())) {
                 var competicion = dbContext.Set<Competicion>().FirstOrDefault();
-
                 if (competicion != null) {
-                    var inscripcion = new Inscripcion {
-                        NombreUsuario = user != null ? user.Name : "Peter",
-                        ApellidosUsuario = user != null ? user.Surname : "Jackson",
-                        DNI = "12345678Z",
-                        Telefono = "600112233",
-                        FechaInscripcion = DateTime.Now,
-                        MetodoPago = MetodoPago.Tarjeta,
-                        PrecioTotal = competicion.Precio,
-                        DatosPago = "**** **** **** 4321",
-                        CompeticionesInscritas = new List<CompeticionInscrita>()
-                    };
-
-                    var competicionInscrita = new CompeticionInscrita {
+                    var inscripcionComp = new Inscripcion(user.Name, user.Surname, user.DNI ?? "12345678Z", "600112233", DateTime.Now, MetodoPago.Tarjeta, competicion.Precio, "**** **** **** 4321");
+                    inscripcionComp.CompeticionesInscritas = new List<CompeticionInscrita>();
+                    
+                    var compInscrita = new CompeticionInscrita {
                         Competicion = competicion,
-                        Inscripcion = inscripcion,
+                        Inscripcion = inscripcionComp,
                         ProblemasFisicos = "Ninguno"
                     };
-
-                    inscripcion.CompeticionesInscritas.Add(competicionInscrita);
-                    dbContext.Inscripciones.Add(inscripcion);
-                    dbContext.SaveChanges();
+                    inscripcionComp.CompeticionesInscritas.Add(compInscrita);
+                    dbContext.Inscripciones.Add(inscripcionComp);
                 }
             }
-        }
 
-        // =========================================================================
-        // MÉTODO: SeedClasesDeportivas (caso de uso: Apuntarse a Clase Deportiva)
-        // =========================================================================
-        public static void SeedClasesDeportivas(ApplicationDbContext dbContext)
-        {
-            // Solo insertamos si no hay clases deportivas aún
-            if (dbContext.Set<ClaseDeportiva>().Any())
-                return;
+            // Inscribirse a Clase Deportiva
+            if (!dbContext.Inscripciones.Any(i => i.ClasesInscritas.Any())) {
+                var clase = dbContext.Set<ClaseDeportiva>().FirstOrDefault();
+                if (clase != null) {
+                    var inscripcionClase = new Inscripcion(user.Name, user.Surname, user.DNI ?? "12345678Z", "600112233", DateTime.Now, MetodoPago.Bizum, clase.PrecioUnitario * 1, "Bizum confirmado — ref. 20261002");
+                    inscripcionClase.ClasesInscritas = new List<ClaseInscrita>();
 
-            // Recuperamos los TiposDeporte ya creados por SeedTiposDeporteYCompeticiones
-            var tiposPadel      = dbContext.Set<TipoDeporte>().FirstOrDefault(t => t.Nombre == "Pádel");
-            var tiposTenis      = dbContext.Set<TipoDeporte>().FirstOrDefault(t => t.Nombre == "Tenis");
-            var tiposBaloncesto = dbContext.Set<TipoDeporte>().FirstOrDefault(t => t.Nombre == "Baloncesto");
-
-            var clasesSet = dbContext.Set<ClaseDeportiva>();
-
-            // Clase 1 — Pádel principiante
-            if (tiposPadel != null) {
-                clasesSet.Add(new ClaseDeportiva {
-                    Descripcion     = "Clase introductoria de pádel para principiantes.",
-                    FechaHora       = DateTime.Now.AddDays(3).Date.AddHours(10),
-                    Lugar           = "Pista Cubierta 1 — IMD",
-                    Monitor         = "Carlos Ruiz",
-                    Nivel           = "Principiante",
-                    PlazasDisponibles = 12,
-                    PrecioUnitario  = 8.00m,
-                    TipoDeporteId   = tiposPadel.Id
-                });
-
-                // Clase 2 — Pádel avanzado
-                clasesSet.Add(new ClaseDeportiva {
-                    Descripcion     = "Entrenamiento técnico avanzado de pádel.",
-                    FechaHora       = DateTime.Now.AddDays(5).Date.AddHours(18),
-                    Lugar           = "Pista Cubierta 2 — IMD",
-                    Monitor         = "Carlos Ruiz",
-                    Nivel           = "Avanzado",
-                    PlazasDisponibles = 8,
-                    PrecioUnitario  = 12.00m,
-                    TipoDeporteId   = tiposPadel.Id
-                });
+                    var claseInscrita = new ClaseInscrita(clase.Id, 0, 1, clase.PrecioUnitario, "Sin observaciones.") {
+                        ClaseDeportiva = clase,
+                        Inscripcion = inscripcionClase
+                    };
+                    inscripcionClase.ClasesInscritas.Add(claseInscrita);
+                    
+                    // Update stock/places
+                    clase.PlazasDisponibles -= claseInscrita.PlazasReservadas;
+                    
+                    dbContext.Inscripciones.Add(inscripcionClase);
+                }
             }
 
-            // Clase 3 — Tenis intermedio
-            if (tiposTenis != null) {
-                clasesSet.Add(new ClaseDeportiva {
-                    Descripcion     = "Clase de tenis nivel intermedio, enfocada en el saque.",
-                    FechaHora       = DateTime.Now.AddDays(7).Date.AddHours(9),
-                    Lugar           = "Pista Exterior Tenis — Campus",
-                    Monitor         = "Laura Gómez",
-                    Nivel           = "Intermedio",
-                    PlazasDisponibles = 10,
-                    PrecioUnitario  = 10.50m,
-                    TipoDeporteId   = tiposTenis.Id
-                });
-            }
-
-            // Clase 4 — Baloncesto principiante
-            if (tiposBaloncesto != null) {
-                clasesSet.Add(new ClaseDeportiva {
-                    Descripcion     = "Iniciación al baloncesto: fundamentos y reglas básicas.",
-                    FechaHora       = DateTime.Now.AddDays(10).Date.AddHours(17),
-                    Lugar           = "Pabellón Principal — IMD",
-                    Monitor         = "Marcos Díaz",
-                    Nivel           = "Principiante",
-                    PlazasDisponibles = 16,
-                    PrecioUnitario  = 7.50m,
-                    TipoDeporteId   = tiposBaloncesto.Id
-                });
-            }
-
-            dbContext.SaveChanges();
-        }
-
-        // =========================================================================
-        // MÉTODO: SeedInscripcionClaseDeportiva (caso de uso: Apuntarse a Clase Deportiva)
-        // =========================================================================
-        public static void SeedInscripcionClaseDeportiva(ApplicationDbContext dbContext, ApplicationUser user)
-        {
-            // Solo insertamos si no hay inscripciones con ClasesInscritas aún
-            if (dbContext.Set<ClaseInscrita>().Any())
-                return;
-
-            var clase = dbContext.Set<ClaseDeportiva>().FirstOrDefault();
-            if (clase == null || user == null)
-                return;
-
-            // Creamos la Inscripcion para el caso de uso de clase deportiva
-            var inscripcion = new Inscripcion {
-                NombreUsuario    = user.Name,
-                ApellidosUsuario = user.Surname,
-                DNI              = "12345678Z",
-                Telefono         = "600112233",
-                FechaInscripcion = DateTime.Now,
-                MetodoPago       = MetodoPago.Bizum,
-                PrecioTotal      = clase.PrecioUnitario * 1,   // 1 plaza reservada
-                DatosPago        = "Bizum confirmado — ref. 20261002",
-                ClasesInscritas  = new List<ClaseInscrita>()
-            };
-
-            var claseInscrita = new ClaseInscrita {
-                ClaseDeportiva   = clase,
-                Inscripcion      = inscripcion,
-                Observaciones    = "Sin observaciones.",
-                PlazasReservadas = 1,
-                Precio           = clase.PrecioUnitario
-            };
-
-            inscripcion.ClasesInscritas.Add(claseInscrita);
-
-            // Reducimos las plazas disponibles de la clase
-            clase.PlazasDisponibles -= claseInscrita.PlazasReservadas;
-
-            dbContext.Inscripciones.Add(inscripcion);
             dbContext.SaveChanges();
         }
     }

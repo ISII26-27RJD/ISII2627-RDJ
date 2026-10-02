@@ -21,6 +21,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Pista> Pistas { get; set; } // Asignación explícita de las clases que tendrá la base de datos
 
     public DbSet<PistaReservada> PistasReservadas { get; set; } // DbSet para la entidad intermedia PistaReservada
+    public DbSet<Reserva> Reservas { get; set; } // DbSet para la entidad Reserva
     public DbSet<TipoDeporte> TiposDeportes { get; set; }
 
     public DbSet<ClaseInscrita> ClasesInscritas { get; set; }

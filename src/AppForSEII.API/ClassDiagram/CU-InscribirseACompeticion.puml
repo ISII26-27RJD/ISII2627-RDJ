@@ -3,4 +3,8 @@
 !include .\\CompeticionInscrita.puml
 !include .\\Inscripcion.puml
 !include .\\TipoDeporte.puml
+
+hide ClaseDeportiva
+hide ClaseInscrita
+hide ApplicationUser
 @enduml

@@ -23,8 +23,9 @@ namespace AppForSEII.API.Models
         [StringLength(100, ErrorMessage = "Los apellidos no pueden exceder los 100 caracteres.")]
         public string Apellidos { get; set; }
 
+        // El dni tiene que empezar con exáctamenbte 8 dígitos y terminar con una letra.
         [Required]
-        [StringLength(9, MinimumLength = 9, ErrorMessage = "El DNI debe tener 9 caracteres (8 números y 1 letra).")]
+        [RegularExpression(@"^\d{8}[A-Za-z]$", ErrorMessage = "El DNI debe tener el formato de 8 números seguidos de 1 letra.")]
         public string Dni { get; set; }
 
         [Required]

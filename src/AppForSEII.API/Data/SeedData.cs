@@ -226,6 +226,24 @@ namespace AppForSEII.API.Data
             //Voy a reutilizar deportes que ya existen en la base de datos
             var tipoPadel = dbContext.Set<TipoDeporte>().FirstOrDefault(t => t.Nombre == "Pádel");
             var tipoTenis = dbContext.Set<TipoDeporte>().FirstOrDefault(t => t.Nombre == "Tenis");
+
+            if (tipoPadel == null || tipoTenis == null) return; // Si no existen, no podemos crear pistas
+            //En pocas palabras, no puedo tener un hijo si no existe el padre.
+
+            var pistasSet = dbContext.Set<Pista>();
+            //Idempotencia: Solo insertamos la pista si no existe una con ese nombre (si arranco 20 veces, solo se insertará la primera vez).
+            if (pistasSet.FirstOrDefault(p => p.NombrePista == "Pista Central Pádel") == null) {
+                pistasSet.Add(new Pista("Pista Central Pádel", 4, 12.00m, 1, tipoPadel.Id));
+            }
+            
+            if (pistasSet.FirstOrDefault(p => p.NombrePista == "Pista Exterior Tenis") == null) {
+                pistasSet.Add(new Pista("Pista Exterior Tenis", 4, 15.50m, 1, tipoTenis.Id));
+            }
+            
+            // Guardado intermedio: Crucial para que SQL inserte las pistas, genere sus 'IdPista' reales 
+            // en la base de datos y podamos usarlos en el siguiente bloque para las Reservas.
+            dbContext.SaveChanges(); 
+
         }
     }
 }

@@ -240,10 +240,63 @@ namespace AppForSEII.API.Data
                 pistasSet.Add(new Pista("Pista Exterior Tenis", 4, 15.50m, 1, tipoTenis.Id));
             }
             
-            // Guardado intermedio: Crucial para que SQL inserte las pistas, genere sus 'IdPista' reales 
-            // en la base de datos y podamos usarlos en el siguiente bloque para las Reservas.
+            // Guardado intermedio: SQL inserta las pistas, genera sus 'IdPista' reales 
+            // en la base de datos y podemos usarlos en el siguiente bloque para las Reservas.
             dbContext.SaveChanges(); 
 
-        }
-    }
-}
+            //Lógica de negócio: Solo insertamos reservas si no existen ya en la base de datos.
+            var reservasSet = dbContext.Set<Reserva>();
+
+            // Verificamos por DNI para mantener la idempotencia en las Reservas
+            if (reservasSet.FirstOrDefault(r => r.Dni == "12345678A") == null)
+            {
+                // Rescatamos las pistas recién creadas con sus IDs ya consolidados
+                var pistaPadel = pistasSet.FirstOrDefault(p => p.NombrePista == "Pista Central Pádel");
+                var pistaTenis = pistasSet.FirstOrDefault(p => p.NombrePista == "Pista Exterior Tenis");
+
+                //Comprueba si las pistas no existen
+                if (pistaPadel != null && pistaTenis != null)
+                {
+                    //Creamos padre
+                    var reserva = new Reserva("Juan", "Pérez", "12345678A", DateTime.Now.AddDays(2), MetodoPago.Tarjeta, 27.50m);
+                    reserva.PistasReservadas = new List<PistaReservada>();
+
+                    //Vamos con desgloses (las uniones n:m)
+                    //Para no asignar IDs manualmente, pasamos los objetos enteros
+                    //EF Core deducirá y orquestará automáticamete los INSERTs en el orden correcto
+                    var reservaPadel = new PistaReservada {
+                        Cantidad = 1,
+                        Precio = pistaPadel.Precio,
+                        Observaciones = "Llevar palas de alquiler",
+                        Pista = pistaPadel,
+                        Reserva = reserva
+                    };
+
+                    var reservaTenis = new PistaReservada {
+                        Cantidad = 1,
+                        Precio = pistaTenis.Precio,
+                        Observaciones = "Sin observaciones",
+                        Pista = pistaTenis,
+                        Reserva = reserva
+                    };
+
+                    reserva.PistasReservadas.Add(reservaPadel);
+                    reserva.PistasReservadas.Add(reservaTenis);
+
+                    //Al procesar la reserva, reducimos el stock físico en memoria.
+                    pistaPadel.Stock -= reservaPadel.Cantidad;
+                    pistaTenis.Stock -= reservaTenis.Cantidad;
+
+                    reservasSet.Add(reserva);
+
+                }//Del segundo if
+            }//Del primer if
+
+            //Guardamos la reserva y los cambios en stock de las pistas
+            dbContext.SaveChanges();
+            
+        }//Del método
+
+    }//De public class SeedData
+    
+}//Del namespace

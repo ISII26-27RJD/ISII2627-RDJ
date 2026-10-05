@@ -421,6 +421,9 @@ namespace AppForSEII.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdPista"));
 
+                    b.Property<int>("IdTipoDeporte")
+                        .HasColumnType("int");
+
                     b.Property<int>("NPersonas")
                         .HasColumnType("int");
 
@@ -436,7 +439,7 @@ namespace AppForSEII.API.Migrations
                     b.Property<int>("Stock")
                         .HasColumnType("int");
 
-                    b.Property<int?>("TipoDeporteId")
+                    b.Property<int>("TipoDeporteId")
                         .HasColumnType("int");
 
                     b.HasKey("IdPista");
@@ -467,11 +470,21 @@ namespace AppForSEII.API.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<int>("PistaIdPista")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("Precio")
                         .HasPrecision(5, 2)
                         .HasColumnType("decimal(5,2)");
 
+                    b.Property<int>("ReservaId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("PistaIdPista");
+
+                    b.HasIndex("ReservaId");
 
                     b.ToTable("PistasReservadas");
                 });
@@ -765,7 +778,7 @@ namespace AppForSEII.API.Migrations
             modelBuilder.Entity("AppForSEII.API.Models.Material", b =>
                 {
                     b.HasOne("AppForSEII.API.Models.TipoDeporte", null)
-                        .WithMany("Materiales")
+                        .WithMany("Material")
                         .HasForeignKey("TipoDeporteId");
 
                     b.HasOne("AppForSEII.API.Models.TipoMaterial", "TipoMaterial")
@@ -798,9 +811,32 @@ namespace AppForSEII.API.Migrations
 
             modelBuilder.Entity("AppForSEII.API.Models.Pista", b =>
                 {
-                    b.HasOne("AppForSEII.API.Models.TipoDeporte", null)
-                        .WithMany("Pistas")
-                        .HasForeignKey("TipoDeporteId");
+                    b.HasOne("AppForSEII.API.Models.TipoDeporte", "TipoDeporte")
+                        .WithMany()
+                        .HasForeignKey("TipoDeporteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TipoDeporte");
+                });
+
+            modelBuilder.Entity("AppForSEII.API.Models.PistaReservada", b =>
+                {
+                    b.HasOne("AppForSEII.API.Models.Pista", "Pista")
+                        .WithMany("PistasReservadas")
+                        .HasForeignKey("PistaIdPista")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AppForSEII.API.Models.Reserva", "Reserva")
+                        .WithMany("PistasReservadas")
+                        .HasForeignKey("ReservaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Pista");
+
+                    b.Navigation("Reserva");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -886,15 +922,23 @@ namespace AppForSEII.API.Migrations
                     b.Navigation("MaterialAlquilados");
                 });
 
+            modelBuilder.Entity("AppForSEII.API.Models.Pista", b =>
+                {
+                    b.Navigation("PistasReservadas");
+                });
+
+            modelBuilder.Entity("AppForSEII.API.Models.Reserva", b =>
+                {
+                    b.Navigation("PistasReservadas");
+                });
+
             modelBuilder.Entity("AppForSEII.API.Models.TipoDeporte", b =>
                 {
                     b.Navigation("ClasesDeportivas");
 
                     b.Navigation("Competiciones");
 
-                    b.Navigation("Materiales");
-
-                    b.Navigation("Pistas");
+                    b.Navigation("Material");
                 });
 
             modelBuilder.Entity("AppForSEII.API.Models.TipoMaterial", b =>

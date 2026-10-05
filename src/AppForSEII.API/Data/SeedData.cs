@@ -11,13 +11,13 @@ namespace AppForSEII.API.Data
 {
     public class SeedData 
     {
-        public static void Initialize(ApplicationDbContext dbContext, IServiceProvider serviceProvider, ILogger logger) 
+        public static async Task InitializeAsync(ApplicationDbContext dbContext, IServiceProvider serviceProvider, ILogger logger) 
         {
             List<string> rolesNames = new List<string> { "Administrator", "Employee", "Customer" };
 
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             try {
-                SeedRoles(roleManager, rolesNames);
+                await SeedRolesAsync(roleManager, rolesNames);
             }
             catch (Exception ex) {
                 logger.LogError(ex, "An error occurred seeding the roles in the Database.");
@@ -25,7 +25,7 @@ namespace AppForSEII.API.Data
 
             var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
             try {
-                SeedUsers(userManager, rolesNames);
+                await SeedUsersAsync(userManager, rolesNames);
             }
             catch (Exception ex) {
                 logger.LogError(ex, "An error occurred seeding the Users in the Database.");
@@ -40,7 +40,8 @@ namespace AppForSEII.API.Data
             }
 
             try {
-                var user = dbContext.Users.OfType<ApplicationUser>().FirstOrDefault(u => u.UserName == "peter@uclm.es");
+                var user = await dbContext.Users.OfType<ApplicationUser>()
+                    .FirstOrDefaultAsync(u => u.UserName == "peter@uclm.es");
 
                 //it initializes the database with an Inscripcion
                 SeedInscripciones(dbContext, user);
@@ -48,62 +49,68 @@ namespace AppForSEII.API.Data
             catch (Exception ex) {
                 logger.LogError(ex, "An error occurred seeding an Inscripcion in the Database.");
             }
+
+            try {
+                // Vamos a iniciar la base de datos con instancias de Pista y Reserva, para la comprobación de funcionalidades.
+                // Por ahora dejamos la llamada al método comentada.
+                //SeedPistasYReservas(dbContext); //DESCOMENTAR A UN FUTURO
+            }
+            catch (Exception ex) {
+                logger.LogError(ex, "An error occurred seeding Pistas and Reservas in the Database.");
+            }
         }
 
-        public static void SeedRoles(RoleManager<IdentityRole> roleManager, List<string> roles) 
+        private static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager, IEnumerable<string> roles)
         {
             foreach (string roleName in roles) {
                 //it checks such role does not exist in the database 
-                if (!roleManager.RoleExistsAsync(roleName).Result) {
-                    IdentityRole role = new IdentityRole();
-                    role.Name = roleName;
-                    role.NormalizedName = roleName;
-                    IdentityResult roleResult = roleManager.CreateAsync(role).Result;
+                if (!await roleManager.RoleExistsAsync(roleName)) {
+                    IdentityRole role = new IdentityRole {
+                        Name = roleName,
+                        NormalizedName = roleManager.NormalizeKey(roleName)
+                    };
+                    IdentityResult roleResult = await roleManager.CreateAsync(role);
+                    EnsureIdentitySuccess(roleResult, $"creating role '{roleName}'");
                 }
             }
         }
 
-        public static void SeedUsers(UserManager<ApplicationUser> userManager, List<string> roles) 
+        private static async Task SeedUsersAsync(UserManager<ApplicationUser> userManager, IReadOnlyList<string> roles)
         {
-            //first, it checks the user does not already exist in the DB
-            if (userManager.FindByNameAsync("elena@uclm.es").Result == null) {
-                ApplicationUser user = new ApplicationUser("1", "Elena", "Navarro Martínez", "elena@uclm.es", "11111111A", 45, "Femenino");
-                user.EmailConfirmed = true;
+            await SeedUserAsync(userManager, new ApplicationUser("1", "Elena", "Navarro Martínez",
+                "elena@uclm.es", "11111111A", 45, "Femenino"), "Password1234%", roles[0]);
+            await SeedUserAsync(userManager, new ApplicationUser("2", "Gregorio", "Diaz Descalzo",
+                "gregorio@uclm.es", "22222222B", 50, "Masculino"), "APassword1234%", roles[1]);
+            await SeedUserAsync(userManager, new ApplicationUser("3", "Peter", "Jackson",
+                "peter@uclm.es", "33333333C", 30, "Masculino"), "OtherPass12$", roles[2]);
+        }
 
-                var result = userManager.CreateAsync(user, "Password1234%");
-                result.Wait();
-
-                if (result.IsCompletedSuccessfully) {
-                    //administrator role
-                    userManager.AddToRoleAsync(user, roles[0]).Wait();
-                }
+        private static async Task SeedUserAsync(
+            UserManager<ApplicationUser> userManager,
+            ApplicationUser newUser,
+            string password,
+            string role)
+        {
+            var user = await userManager.FindByNameAsync(newUser.UserName);
+            if (user == null) {
+                newUser.EmailConfirmed = true;
+                var result = await userManager.CreateAsync(newUser, password);
+                EnsureIdentitySuccess(result, $"creating user '{newUser.UserName}'");
+                user = newUser;
             }
 
-            if (userManager.FindByNameAsync("gregorio@uclm.es").Result == null) {
-                ApplicationUser user = new ApplicationUser("2", "Gregorio", "Diaz Descalzo", "gregorio@uclm.es", "22222222B", 50, "Masculino");
-                user.EmailConfirmed = true;
-
-                var result = userManager.CreateAsync(user, "APassword1234%");
-                result.Wait();
-
-                if (result.IsCompletedSuccessfully) {
-                    //employee role
-                    userManager.AddToRoleAsync(user, roles[1]).Wait();
-                }
+            if (!await userManager.IsInRoleAsync(user, role)) {
+                var result = await userManager.AddToRoleAsync(user, role);
+                EnsureIdentitySuccess(result, $"assigning role '{role}' to user '{user.UserName}'");
             }
+        }
 
-            if (userManager.FindByNameAsync("peter@uclm.es").Result == null) {
-                //A customer class has been defined because it has different attributes
-                ApplicationUser user = new ApplicationUser("3", "Peter", "Jackson", "peter@uclm.es", "33333333C", 30, "Masculino");
-                user.EmailConfirmed = true;
-
-                var result = userManager.CreateAsync(user, "OtherPass12$");
-                result.Wait();
-
-                if (result.IsCompletedSuccessfully) {
-                    //customer role
-                    userManager.AddToRoleAsync(user, roles[2]).Wait();
-                }
+        private static void EnsureIdentitySuccess(IdentityResult result, string operation)
+        {
+            if (!result.Succeeded) {
+                var errors = string.Join("; ", result.Errors.Select(error =>
+                    $"{error.Code}: {error.Description}"));
+                throw new InvalidOperationException($"Identity error while {operation}: {errors}");
             }
         }
 
@@ -166,12 +173,14 @@ namespace AppForSEII.API.Data
             //dbContext.Set<ClaseDeportiva>().ExecuteUpdate(s => s.SetProperty(c => c.PlazasDisponibles, c => c.PlazasDisponibles + 5));
         }
 
-        public static void SeedInscripciones(ApplicationDbContext dbContext, ApplicationUser user) 
+        public static void SeedInscripciones(ApplicationDbContext dbContext, ApplicationUser? user) 
         {
             if (user == null) return;
 
             // Inscribirse a Competición
-            if (!dbContext.Inscripciones.Any(i => i.CompeticionesInscritas.Any())) {
+            if (!dbContext.Inscripciones.Any(i =>
+                i.DNI == user.DNI &&
+                i.CompeticionesInscritas.Any())) {
                 var competicion = dbContext.Set<Competicion>().FirstOrDefault();
                 if (competicion != null) {
                     var inscripcionComp = new Inscripcion(user.Name, user.Surname, user.DNI ?? "12345678Z", "600112233", DateTime.Now, MetodoPago.Tarjeta, competicion.Precio, "**** **** **** 4321");
@@ -188,7 +197,9 @@ namespace AppForSEII.API.Data
             }
 
             // Inscribirse a Clase Deportiva
-            if (!dbContext.Inscripciones.Any(i => i.ClasesInscritas.Any())) {
+            if (!dbContext.Inscripciones.Any(i =>
+                i.DNI == user.DNI &&
+                i.ClasesInscritas.Any())) {
                 var clase = dbContext.Set<ClaseDeportiva>().FirstOrDefault();
                 if (clase != null) {
                     var inscripcionClase = new Inscripcion(user.Name, user.Surname, user.DNI ?? "12345678Z", "600112233", DateTime.Now, MetodoPago.Bizum, clase.PrecioUnitario * 1, "Bizum confirmado — ref. 20261002");

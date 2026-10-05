@@ -220,5 +220,10 @@ namespace AppForSEII.API.Data
 
             dbContext.SaveChanges();
         }
+
+        public static void SeedPistasYReservas(ApplicationDbContext dbContext)
+        {
+            
+        }
     }
 }

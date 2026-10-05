@@ -221,9 +221,11 @@ namespace AppForSEII.API.Data
             dbContext.SaveChanges();
         }
 
-        public static void SeedPistasYReservas(ApplicationDbContext dbContext)
+        public static void SeedPistasYReservas(ApplicationDbContext dbContext) //Caso de Uso Reservar pista
         {
-            
+            //Voy a reutilizar deportes que ya existen en la base de datos
+            var tipoPadel = dbContext.Set<TipoDeporte>().FirstOrDefault(t => t.Nombre == "Pádel");
+            var tipoTenis = dbContext.Set<TipoDeporte>().FirstOrDefault(t => t.Nombre == "Tenis");
         }
     }
 }

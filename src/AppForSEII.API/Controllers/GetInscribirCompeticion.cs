@@ -33,7 +33,7 @@ namespace AppForSEII.API.Controllers
                     (competitionName == null || c.Nombre.Contains(competitionName))
                     && (sportType == null || c.TipoDeporte.Nombre.Equals(sportType))
                     && (location == null || c.Lugar.Equals(location))
-                    && (c.CompeticionesInscritas.Count < c.PlazasMaximas) // Cambia PlazasMaximas si tu modelo usa otro nombre (ej. CapacidadMaxima)
+                    && (c.CompeticionesInscritas.Count < c.Plazas)
                 )
                 .OrderBy(c => c.Fecha)
                 .Select(c => new DTOInscribirseCompeticion(
@@ -42,7 +42,7 @@ namespace AppForSEII.API.Controllers
                     c.TipoDeporte.Nombre,
                     c.Fecha,
                     c.Lugar,
-                    c.Precio
+                    (double)c.Precio
                 ))
                 .ToListAsync();
 

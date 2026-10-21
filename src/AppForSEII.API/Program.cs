@@ -90,7 +90,7 @@ using (var scope = app.Services.CreateScope()) {
 
 
         //it sees the database
-        SeedData.Initialize(db, scope.ServiceProvider, logger);
+        await SeedData.InitializeAsync(db, scope.ServiceProvider, logger);
     }
     catch (Exception ex) {
         logger.LogError(ex, "An error occurred seeding the DB.");
@@ -114,5 +114,4 @@ app.MapControllers();
 
 
 app.Run();
-
 

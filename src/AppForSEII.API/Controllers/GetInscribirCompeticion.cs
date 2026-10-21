@@ -26,23 +26,23 @@ namespace AppForSEII.API.Controllers
         [ProducesResponseType(typeof(ValidationProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> GetCompetitionsForRegistration(string? competitionName, string? sportType, string? location)
         {
-            IList<DTOInscribirseCompeticion> selectCompetitions = await _context.Competitions
-                .Include(c => c.SportType)
-                .Include(c => c.Inscriptions)
+            IList<DTOInscribirseCompeticion> selectCompetitions = await _context.Competiciones
+                .Include(c => c.TipoDeporte)
+                .Include(c => c.CompeticionesInscritas)
                 .Where(c => 
-                    (competitionName == null || c.Name.Contains(competitionName))
-                    && (sportType == null || c.SportType.Name.Equals(sportType))
-                    && (location == null || c.Location.Equals(location))
-                    && (c.Inscriptions.Count < c.MaxCapacity)
+                    (competitionName == null || c.Nombre.Contains(competitionName))
+                    && (sportType == null || c.TipoDeporte.Nombre.Equals(sportType))
+                    && (location == null || c.Lugar.Equals(location))
+                    && (c.CompeticionesInscritas.Count < c.MaxCapacity)
                 )
-                .OrderBy(c => c.Date)
+                .OrderBy(c => c.Fecha)
                 .Select(c => new DTOInscribirseCompeticion(
                     c.Id,
-                    c.Name,
-                    c.SportType.Name,
-                    c.Date,
-                    c.Location,
-                    c.Price
+                    c.Nombre,
+                    c.TipoDeporte.Nombre,
+                    c.Fecha,
+                    c.Lugar,
+                    c.Precio
                 ))
                 .ToListAsync();
 

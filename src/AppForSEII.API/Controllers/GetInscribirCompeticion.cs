@@ -21,7 +21,7 @@ namespace AppForSEII.API.Controllers
             _logger = logger;
         }
 
-        // --- 1. GET de Selección (Paso 2) ---
+        // GET de Selección  
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(typeof(IList<DTOInscribirseCompeticion>), (int)HttpStatusCode.OK)]
@@ -51,7 +51,7 @@ namespace AppForSEII.API.Controllers
             return Ok(selectCompetitions);
         }
 
-        // --- 2. GET Detalle de Inscripción (Equivalente a GetRental) ---
+        //  GET Detalle de Inscripción (Equivalente a GetRental) 
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(typeof(CompeticionInscripcionDetailDTO), (int)HttpStatusCode.OK)]
@@ -94,7 +94,7 @@ namespace AppForSEII.API.Controllers
             return Ok(inscription);
         }
 
-        // --- 3. POST Creación de Inscripción (Equivalente a CreateRental) ---
+        // POST Creación de Inscripción (Equivalente a CreateRental)
         [HttpPost]
         [Route("[action]")]
         [ProducesResponseType(typeof(CompeticionInscripcionDetailDTO), (int)HttpStatusCode.Created)]
@@ -144,7 +144,6 @@ namespace AppForSEII.API.Controllers
                 inscriptionForCreate.DatosPago
             );
 
-            // Si tienes mapeada la propiedad de navegación al usuario:
             if (user != null)
             {
                 inscription.Cliente = user;
@@ -163,7 +162,7 @@ namespace AppForSEII.API.Controllers
                 }
                 else
                 {
-                    // Usamos el constructor exacto de CompeticionInscrita
+                    // U+usamos el constructor de CompeticionInscrita
                     inscription.CompeticionesInscritas.Add(new CompeticionInscrita(
                         item.CompeticionId, 
                         inscription.Id, 

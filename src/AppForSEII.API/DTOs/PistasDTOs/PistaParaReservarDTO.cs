@@ -10,6 +10,16 @@ namespace AppForMovies.API.DTOs.PistasDTOs
         {
         }
 
+        // Constructor parametrizado
+        public PistaParaReservarDTO(int idPista, string nombrePista, int nPersonas, string nombreDeporte, decimal precio)
+        {
+            IdPista = idPista;
+            NombrePista = nombrePista;
+            NPersonas = nPersonas;
+            NombreDeporte = nombreDeporte;
+            Precio = precio;
+        }
+
         public int IdPista{get; set;}
 
         [StringLength(50, ErrorMessage = "El nombre de la pista no puede exceder los 50 caracteres.")]

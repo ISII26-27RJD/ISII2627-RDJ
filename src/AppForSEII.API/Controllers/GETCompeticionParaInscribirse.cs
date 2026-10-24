@@ -33,11 +33,11 @@ namespace AppForSEII.API.Controllers
         // GET de Selección  
         [HttpGet]
         [Route("[action]")]
-        [ProducesResponseType(typeof(IList<DTOInscribirseCompeticion>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<CompeticionParaInscribirseDTO>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ValidationProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> GetCompetitionsForRegistration(string? competitionName, string? sportType, string? location)
         {
-            IList<DTOInscribirseCompeticion> selectCompetitions = await _context.Competiciones
+            IList<CompeticionParaInscribirseDTO> selectCompetitions = await _context.Competiciones
                 .Include(c => c.TipoDeporte)
                 .Include(c => c.CompeticionesInscritas)
                 .Where(c => 
@@ -47,7 +47,7 @@ namespace AppForSEII.API.Controllers
                     && (c.CompeticionesInscritas.Count < c.Plazas)
                 )
                 .OrderBy(c => c.Fecha)
-                .Select(c => new DTOInscribirseCompeticion(
+                .Select(c => new CompeticionParaInscribirseDTO(
                     c.Id,
                     c.Nombre,
                     c.TipoDeporte.Nombre,

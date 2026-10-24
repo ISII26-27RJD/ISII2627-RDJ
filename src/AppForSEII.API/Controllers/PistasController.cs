@@ -33,6 +33,17 @@ namespace AppForSEII.API.Controllers
         [ProducesResponseType(typeof(ValidationProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> GetPistasParaReservar(string? nombreDeporte, DateTime? fechaReserva)
         {
+            //Filtro. Aseguro que no reservo pistas para jugar "ayer". No interesa ver pistas alquiladas la semana pasada
+            if (fechaReserva != null && fechaReserva.Value.Date < DateTime.Today)
+            {
+                ModelState.AddModelError("fechaReserva", "La fecha de reserva no puede ser anterior al día de hoy.");
+                _logger.LogError($"{DateTime.Now} Error: Intento de buscar pistas en una fecha pasada ({fechaReserva}).");
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+
+            //¿No paso fecha? No pasa nada usa la de hoy
+            DateTime fechaFiltro = fechaReserva ?? DateTime.Today;
+
             return Ok("Todo en orden"); //Esta línea NO es permanente, es solo para que deje de saltar error en código.
         }
 

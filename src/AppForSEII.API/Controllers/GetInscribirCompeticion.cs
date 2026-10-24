@@ -1,5 +1,6 @@
 using AppForSEII.API.Data;
 using AppForSEII.API.Models;
+using AppForSEII.API.Models;
 using AppForSEII.Shared.CompetitionDTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using System.Threading.Tasks;
 
 namespace AppForSEII.API.Controllers
@@ -25,7 +30,7 @@ namespace AppForSEII.API.Controllers
             _logger = logger;
         }
 
-        // --- GET de Selección (Paso 2) ---
+        // GET de Selección  
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(typeof(IList<DTOInscribirseCompeticion>), (int)HttpStatusCode.OK)]
@@ -55,7 +60,7 @@ namespace AppForSEII.API.Controllers
             return Ok(selectCompetitions);
         }
 
-        // --- GET Detalle de Inscripción (Equivalente a GetRental) ---
+        //  GET Detalle de Inscripción (Equivalente a GetRental) 
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(typeof(CompeticionInscripcionDetailDTO), (int)HttpStatusCode.OK)]
@@ -98,7 +103,7 @@ namespace AppForSEII.API.Controllers
             return Ok(inscription);
         }
 
-        // --- POST Creación de Inscripción (Equivalente a CreateRental) ---
+        // POST Creación de Inscripción (Equivalente a CreateRental)
         [HttpPost]
         [Route("[action]")]
         [ProducesResponseType(typeof(CompeticionInscripcionDetailDTO), (int)HttpStatusCode.Created)]
@@ -111,6 +116,9 @@ namespace AppForSEII.API.Controllers
                 ModelState.AddModelError("CompeticionesInscritas", "Error! Debe incluir al menos una competición a la que inscribirse.");
             }
 
+            // Comprobación opcional de usuario registrado si el modelo de cliente aplica
+            var user = _context.ApplicationUsers.FirstOrDefault(au => au.DNI == inscriptionForCreate.Dni || au.UserName == inscriptionForCreate.NombreUsuario);
+            
             if (ModelState.ErrorCount > 0)
             {
                 return BadRequest(new ValidationProblemDetails(ModelState));
@@ -122,6 +130,16 @@ namespace AppForSEII.API.Controllers
                 .Include(c => c.TipoDeporte)
                 .Include(c => c.CompeticionesInscritas)
                 .Where(c => competicionIds.Contains(c.Id))
+                .Select(c => new {
+                    c.Id,
+                    c.Nombre,
+                    c.Precio,
+                    c.Plazas,
+                    c.Fecha,
+                    c.Lugar,
+                    c.TipoDeporte,
+                    NumberOfInscriptions = c.CompeticionesInscritas.Count
+                })
                 .ToListAsync();
 
             var inscription = new Inscripcion(
@@ -135,28 +153,34 @@ namespace AppForSEII.API.Controllers
                 inscriptionForCreate.DatosPago
             );
 
+            if (user != null)
+            {
+                inscription.Cliente = user;
+            }
+
             inscription.CompeticionesInscritas = new List<CompeticionInscrita>();
             decimal totalPrice = 0;
 
             foreach (var item in inscriptionForCreate.CompeticionesInscritas)
-{
-    var competicion = competiciones.FirstOrDefault(c => c.Id == item.CompeticionId);
+            {
+                var competicion = competiciones.FirstOrDefault(c => c.Id == item.CompeticionId);
 
-    if (competicion == null || competicion.CompeticionesInscritas.Count >= competicion.Plazas)
-    {
-        ModelState.AddModelError("CompeticionesInscritas", $"Error! La competición id '{item.CompeticionId}' no existe o no tiene plazas libres disponibles.");
-    }
-    else
-    {
-        inscription.CompeticionesInscritas.Add(new CompeticionInscrita(
-            item.CompeticionId, 
-            inscription.Id, 
-            item.ProblemasFisicos
-        ));
-        
-        totalPrice += competicion.Precio;
-    }
-}
+                if (competicion == null || competicion.NumberOfInscriptions >= competicion.Plazas)
+                {
+                    ModelState.AddModelError("CompeticionesInscritas", $"Error! La competición con id '{item.CompeticionId}' no existe o no tiene plazas libres disponibles.");
+                }
+                else
+                {
+                    // U+usamos el constructor de CompeticionInscrita
+                    inscription.CompeticionesInscritas.Add(new CompeticionInscrita(
+                        item.CompeticionId, 
+                        inscription.Id, 
+                        item.ProblemasFisicos
+                    ));
+                    
+                    totalPrice += competicion.Precio;
+                }
+            }
 
             inscription.PrecioTotal = totalPrice;
 
@@ -174,6 +198,7 @@ namespace AppForSEII.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
+                ModelState.AddModelError("Inscripcion", "Error! Hubo un problema al guardar su inscripción, por favor inténtelo de nuevo más tarde.");
                 return Conflict("Error: " + ex.Message);
             }
 
@@ -187,12 +212,12 @@ namespace AppForSEII.API.Controllers
                 inscription.DatosPago,
                 inscriptionForCreate.MetodoPago,
                 inscription.PrecioTotal,
-                inscription.CompeticionesInscritas.Select(ci => {
+                inscriptionForCreate.CompeticionesInscritas.Select(ci => {
                     var comp = competiciones.First(c => c.Id == ci.CompeticionId);
                     return new CompeticionInscritaItemDTO(
                         comp.Id,
                         comp.Nombre,
-                        comp.TipoDeporte.Nombre,
+                        comp.TipoDeporte?.Nombre ?? "",
                         comp.Fecha,
                         comp.Lugar,
                         comp.Precio,

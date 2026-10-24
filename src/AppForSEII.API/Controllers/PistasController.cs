@@ -16,6 +16,15 @@ namespace AppForSEII.API.Controllers
     [ApiController] //No soy un controlador tradicional, solo escupo datos
     public class PistasController : ControllerBase
     {
-        
+        private readonly ApplicationDbContext _context; //La base de datos
+        private readonly ILogger<PistasController> _logger; //Deja registro de lo que pase
+
+        //Dependencias, framework nos deja contexto y logger automáticamente
+        public PistasController(ApplicationDbContext context, ILogger<PistasController> logger)
+        {
+            _context = context;
+            _logger = logger;
+        }
+
     }//De la clase controlador
 }//Del namespace

@@ -63,6 +63,7 @@ builder.Services.AddSwaggerGen(options => {
     options.CustomOperationIds(apiDescription => {
         return apiDescription.TryGetMethodInfo(out MethodInfo methodInfo) ? methodInfo.Name : null;
     });
+    options.CustomSchemaIds(type => type.FullName); //Arreglo de conflictos de enumeración
 
 });
 

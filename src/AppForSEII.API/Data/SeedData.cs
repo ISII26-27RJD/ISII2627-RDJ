@@ -223,12 +223,24 @@ namespace AppForSEII.API.Data
 
         public static void SeedPistasYReservas(ApplicationDbContext dbContext) //Caso de Uso Reservar pista
         {
-            //Voy a reutilizar deportes que ya existen en la base de datos
-            var tipoPadel = dbContext.Set<TipoDeporte>().FirstOrDefault(t => t.Nombre == "Pádel");
-            var tipoTenis = dbContext.Set<TipoDeporte>().FirstOrDefault(t => t.Nombre == "Tenis");
+            // Creamos los deportes necesarios si todavía no existen.
+            var tiposDeportesSet = dbContext.Set<TipoDeporte>();
+            var tipoPadel = tiposDeportesSet.FirstOrDefault(t => t.Nombre == "Pádel");
+            var tipoTenis = tiposDeportesSet.FirstOrDefault(t => t.Nombre == "Tenis");
 
-            if (tipoPadel == null || tipoTenis == null) return; // Si no existen, no podemos crear pistas
-            //En pocas palabras, no puedo tener un hijo si no existe el padre.
+            if (tipoPadel == null)
+            {
+                tipoPadel = new TipoDeporte("Pádel", "Deporte de Pádel");
+                tiposDeportesSet.Add(tipoPadel);
+            }
+
+            if (tipoTenis == null)
+            {
+                tipoTenis = new TipoDeporte("Tenis", "Deporte de Tenis");
+                tiposDeportesSet.Add(tipoTenis);
+            }
+
+            dbContext.SaveChanges();
 
             var pistasSet = dbContext.Set<Pista>();
             //Idempotencia: Solo insertamos la pista si no existe una con ese nombre (si arranco 20 veces, solo se insertará la primera vez).
@@ -284,8 +296,8 @@ namespace AppForSEII.API.Data
                     reserva.PistasReservadas.Add(reservaTenis);
 
                     //Al procesar la reserva, reducimos el stock físico en memoria.
-                    pistaPadel.Stock -= reservaPadel.Cantidad;
-                    pistaTenis.Stock -= reservaTenis.Cantidad;
+                    //pistaPadel.Stock -= reservaPadel.Cantidad;
+                    //pistaTenis.Stock -= reservaTenis.Cantidad;
 
                     reservasSet.Add(reserva);
 

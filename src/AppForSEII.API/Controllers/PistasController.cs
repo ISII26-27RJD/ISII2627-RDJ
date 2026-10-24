@@ -41,11 +41,38 @@ namespace AppForSEII.API.Controllers
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
 
-            //¿No paso fecha? No pasa nada usa la de hoy
+            //¿No paso fecha? No pasa nada, usa la de hoy
             DateTime fechaFiltro = fechaReserva ?? DateTime.Today;
 
-            return Ok("Todo en orden"); //Esta línea NO es permanente, es solo para que deje de saltar error en código.
-        }
+            //CONSULTA A LA BASE DE DATOS
+            var pistasDisponibles = await _context.Pistas
+            .Include(p => p.TipoDeporte) //Obten nombre deporte
+            .Include(p => p.PistasReservadas).ThenInclude(pr => pr.Reserva) //Miramos pistasReservadas, luego en Reserva para ver stock
+            //Filtros de flujos alternativos
+            .Where(p =>
+                //Primer filtro, si metemos deporte, asegurar que coincide con el contexto
+                (nombreDeporte != null || p.TipoDeporte.Nombre == nombreDeporte) 
+                &&
+                //Segundo filtro: validar stock. Vamos a ver cuantas reservas tiene una pista en concreto, en un día especifico, y verificamos si esto es menor que la realidad.
+                (p.PistasReservadas
+                    .Where(pr => pr.Reserva.FechaReserva.Date == fechaFiltro.Date)
+                    .Sum(pr => (int?)pr.Cantidad) ?? 0) < p.Stock
+            )//Del where
+            .OrderBy(p => p.NombrePista) //Ordenamos alfabeticamente por nombres
+            //Aplanamos entidades
+            .Select(p => new PistaParaReservarDTO(
+                p.IdPista, 
+                p.NombrePista, 
+                p.NPersonas, 
+                p.TipoDeporte.Nombre, 
+                p.Precio
+            ))
+            .ToListAsync();
+            
+            // 5. Retornamos la respuesta (Código 200 OK)
+            return Ok(pistasDisponibles);
+
+        }// Del metodo de SELECT
 
     }//De la clase controlador
 }//Del namespace

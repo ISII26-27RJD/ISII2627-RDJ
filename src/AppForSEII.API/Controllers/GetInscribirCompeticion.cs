@@ -140,7 +140,7 @@ namespace AppForSEII.API.Controllers
                     c.TipoDeporte,
                     NumberOfInscriptions = c.CompeticionesInscritas.Count
                 })
-                .ToList();
+                .ToListAsync();
 
             var inscription = new Inscripcion(
                 inscriptionForCreate.NombreUsuario,
@@ -175,7 +175,7 @@ namespace AppForSEII.API.Controllers
                     inscription.CompeticionesInscritas.Add(new CompeticionInscrita(
                         item.CompeticionId, 
                         inscription.Id, 
-                        item.Observaciones
+                        item.ProblemasFisicos
                     ));
                     
                     totalPrice += competicion.Precio;

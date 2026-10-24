@@ -1,8 +1,8 @@
 namespace AppForSEII.Shared.CompetitionDTOs
 {
-    public class DTOInscribirseCompeticion
+    public class CompeticionParaInscribirseDTO
     {
-        public DTOInscribirseCompeticion(int id, string name, string sportType, DateTime date, string location, double price)
+        public CompeticionParaInscribirseDTO(int id, string name, string sportType, DateTime date, string location, double price)
         {
             Id = id;
             Name = name;
@@ -21,7 +21,7 @@ namespace AppForSEII.Shared.CompetitionDTOs
 
         public override bool Equals(object? obj)
         {
-            return obj is DTOInscribirseCompeticion other &&
+            return obj is CompeticionParaInscribirseDTO other &&
                    Id == other.Id &&
                    Name == other.Name &&
                    SportType == other.SportType &&

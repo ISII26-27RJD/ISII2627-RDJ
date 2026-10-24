@@ -26,5 +26,15 @@ namespace AppForSEII.API.Controllers
             _logger = logger;
         }
 
+        //GET de seleccionar pistas para reserva
+        [HttpGet]
+        [Route("[action]")]
+        [ProducesResponseType(typeof(IList<PistaParaReservarDTO>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> GetPistasParaReservar(string? nombreDeporte, DateTime? fechaReserva)
+        {
+            return Ok("Todo en orden"); //Esta línea NO es permanente, es solo para que deje de saltar error en código.
+        }
+
     }//De la clase controlador
 }//Del namespace

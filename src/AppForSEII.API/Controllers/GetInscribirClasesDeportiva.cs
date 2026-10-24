@@ -1,3 +1,4 @@
+using AppForSEII.API.Data;
 using AppForSEII.API.Models;
 using AppForSEII.Shared.ClassDTOs;
 using Microsoft.AspNetCore.Http;
@@ -20,7 +21,7 @@ namespace AppForSEII.API.Controllers
             _logger = logger;
         }
 
-        // GET de seleccion 
+        // GET Selección 
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(typeof(IList<DTOInscribirseClasesDeportivas>), (int)HttpStatusCode.OK)]
@@ -52,6 +53,7 @@ namespace AppForSEII.API.Controllers
             return Ok(selectClasses);
         }
 
+        //GET Detalle de Inscripción
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(typeof(ClassInscriptionDetailDTO), (int)HttpStatusCode.OK)]
@@ -87,14 +89,14 @@ namespace AppForSEII.API.Controllers
 
             if (inscription == null)
             {
-                _logger.LogError($"Error: Inscripción con id {id} no existe");
+                _logger.LogError($"Error: Inscripción a clase con id {id} no existe");
                 return NotFound();
             }
 
             return Ok(inscription);
         }
 
-        // --- 3. POST crear inscripcion ---
+        //POST Crear Inscripción
         [HttpPost]
         [Route("[action]")]
         [ProducesResponseType(typeof(ClassInscriptionDetailDTO), (int)HttpStatusCode.Created)]
@@ -104,8 +106,10 @@ namespace AppForSEII.API.Controllers
         {
             if (inscriptionForCreate.ClasesInscritas.Count == 0)
             {
-                ModelState.AddModelError("ClasesInscritas", "Error! Debe incluir al menos una clase deportiva.");
+                ModelState.AddModelError("ClasesInscritas", "Error! Debe incluir al menos una clase deportiva a la que apuntarse.");
             }
+
+            var user = _context.ApplicationUsers.FirstOrDefault(au => au.DNI == inscriptionForCreate.Dni || au.UserName == inscriptionForCreate.NombreUsuario);
 
             if (ModelState.ErrorCount > 0)
             {
@@ -130,6 +134,11 @@ namespace AppForSEII.API.Controllers
                 inscriptionForCreate.DatosPago
             );
 
+            if (user != null)
+            {
+                inscription.Cliente = user;
+            }
+
             inscription.ClasesInscritas = new List<ClaseInscrita>();
             decimal totalPrice = 0;
 
@@ -137,6 +146,7 @@ namespace AppForSEII.API.Controllers
             {
                 var sportClass = classes.FirstOrDefault(c => c.Id == item.ClaseDeportivaId);
 
+                // comprobamos que existe y que haya plazas disponibles
                 if (sportClass == null || sportClass.PlazasDisponibles < item.PlazasReservadas)
                 {
                     ModelState.AddModelError("ClasesInscritas", $"Error! La clase deportiva con id '{item.ClaseDeportivaId}' no existe o no tiene suficientes plazas disponibles.");
@@ -144,8 +154,8 @@ namespace AppForSEII.API.Controllers
                 else
                 {
                     decimal itemTotal = sportClass.PrecioUnitario * item.PlazasReservadas;
-                    
-                    // Usamos el constructor exacto de ClaseInscrita.cs
+
+                    // creamos la relacion usando el constructor de ClaseInscrita
                     inscription.ClasesInscritas.Add(new ClaseInscrita(
                         sportClass.Id, 
                         inscription.Id, 
@@ -154,7 +164,7 @@ namespace AppForSEII.API.Controllers
                         item.Observaciones
                     ));
 
-                    // Descontar plazas disponibles
+                    // descontamos las plazas reservadas de la clase
                     sportClass.PlazasDisponibles -= item.PlazasReservadas;
                     totalPrice += itemTotal;
                 }
@@ -176,6 +186,7 @@ namespace AppForSEII.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
+                ModelState.AddModelError("Inscripcion", "Error! Hubo un problema al guardar su inscripción, por favor inténtelo de nuevo más tarde.");
                 return Conflict("Error: " + ex.Message);
             }
 

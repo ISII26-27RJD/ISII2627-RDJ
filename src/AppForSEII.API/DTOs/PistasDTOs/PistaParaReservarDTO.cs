@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace AppForMovies.API.DTOs.PistasDTOs
+namespace AppForSEII.API.DTOs.PistasDTOs
 {
     public class PistaParaReservarDTO
     {

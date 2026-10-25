@@ -51,7 +51,7 @@ namespace AppForSEII.API.Controllers
             //Filtros de flujos alternativos
             .Where(p =>
                 //Primer filtro, si metemos deporte, asegurar que coincide con el contexto
-                (nombreDeporte != null || p.TipoDeporte.Nombre == nombreDeporte) 
+                (string.IsNullOrEmpty(nombreDeporte) || p.TipoDeporte.Nombre == nombreDeporte) 
                 &&
                 //Segundo filtro: validar stock. Vamos a ver cuantas reservas tiene una pista en concreto, en un día especifico, y verificamos si esto es menor que la realidad.
                 (p.PistasReservadas

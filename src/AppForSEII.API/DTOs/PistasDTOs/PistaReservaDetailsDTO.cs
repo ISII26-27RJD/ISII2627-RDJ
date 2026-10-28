@@ -36,5 +36,22 @@ namespace AppForSEII.API.DTOs.PistasReservaDetailsDTOs
         [DataType(System.ComponentModel.DataAnnotations.DataType.Currency)]
         [Range(0.01, (double)decimal.MaxValue, ErrorMessage = "El precio debe ser superior a 0.")]
         public decimal Precio { get; set; } = 1m; //La m viene de monetary, por defecto esto mostrará 1.00 si no se define valor
+
+        // Sobrescritura para facilitar los Asserts en los futuros Tests Unitarios
+        public override bool Equals(object? obj)
+        {
+            return obj is PistaReservaDetailsDTO dTO &&
+                   IdPista == dTO.IdPista &&
+                   NombrePista == dTO.NombrePista &&
+                   NPersonas == dTO.NPersonas &&
+                   NombreDeporte == dTO.NombreDeporte &&
+                   Precio == dTO.Precio;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(IdPista, NombrePista, NPersonas, NombreDeporte, Precio);
+        }
+
     }//De la clase
 }//Del namespace

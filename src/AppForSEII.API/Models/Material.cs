@@ -39,5 +39,7 @@ namespace AppForSEII.API.Models
         public List<MaterialAlquilado> MaterialAlquilados{get; set;}
 
         public TipoMaterial TipoMaterial{get; set;}
+
+        public TipoDeporte TipoDeporte{get; set;}
     }
 }

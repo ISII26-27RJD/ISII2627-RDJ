@@ -32,7 +32,7 @@ namespace AppForSEII.API.Controllers
         public async Task<ActionResult> GetMaterialAlquilar(decimal ?precio, string ?material)
         {
             
-            IList<MaterialAlquilarDTO> selectMateriales = await _context.Materiales.Include(m => m.TipoMaterial).Include(m => m.TipoDeporte).Where(m =>(precio == null || m.Precio.Equals(precio)) && 
+            IList<MaterialAlquilarDTO> selectMateriales = await _context.Materiales.Include(m => m.TipoMaterial).Include(m => m.TipoDeporte).Where(m =>(precio == null || m.Precio <= precio) && 
             (material== null || m.TipoMaterial.NombreTipoMaterial.Equals(material))).OrderBy(m => m.Nombre)
             .Select(m => new MaterialAlquilarDTO(m.IdMaterial, m.Nombre, m.Precio, m.TipoMaterial.NombreTipoMaterial, m.TipoDeporte.Nombre)).ToListAsync();
 

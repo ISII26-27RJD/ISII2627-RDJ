@@ -34,10 +34,10 @@ namespace AppForSEII.API.DTOs.AlquilarMaterialDTOs
         }=1;
 
         [StringLength(50, ErrorMessage = "nombre entre 3 y 50 caracteres",MinimumLength=3)]
-        public string TipoMaterial;
+        public string TipoMaterial{get; set;}
 
         [StringLength(50, ErrorMessage = "nombre entre 3 y 50 caracteres",MinimumLength=3)]
-        public string TipoDeporte;
+        public string TipoDeporte{get; set;}
 
         public override bool Equals(object? obj)
         {

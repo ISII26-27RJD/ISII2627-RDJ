@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace AppForSEII.API.DTOs.PistasReservaDetailsDTOs
+namespace AppForSEII.API.DTOs.PistasDTOs
 {
     public class PistaReservaDetailsDTO
     {

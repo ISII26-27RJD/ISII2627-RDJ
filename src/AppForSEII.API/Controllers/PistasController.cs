@@ -74,5 +74,18 @@ namespace AppForSEII.API.Controllers
 
         }// Del metodo de SELECT
 
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        //GET delos detalles de las pistas
+        [HttpGet]
+        [Route("[action]/{id}")] //nombre del método
+        [ProducesResponseType(typeof(PistaReservaDetailsDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult> GetPistaDetails(int id)
+        {
+            return NotFound();
+        }//Del método de details
+
     }//De la clase controlador
+
 }//Del namespace

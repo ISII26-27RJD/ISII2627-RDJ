@@ -83,6 +83,27 @@ namespace AppForSEII.API.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.NotFound)]
         public async Task<ActionResult> GetPistaDetails(int id)
         {
+            //Consulta de stock
+            var pistaDetails = await _context.Pistas
+                
+                // Cargamos la relación para poder aplanar el nombre del deporte
+                .Include(p => p.TipoDeporte)
+                
+                // Filtramos por la Clave Primaria que viene en la URL
+                .Where(p => p.IdPista == id)
+                
+                // Proyección al DTO
+                .Select(p => new PistaReservaDetailsDTO(
+                    p.IdPista,
+                    p.NombrePista,
+                    p.NPersonas,
+                    p.TipoDeporte.Nombre,
+                    p.Precio
+                ))
+                
+                // Ejecuta la consulta y devuelve el primer resultado, o null si no existe
+                .FirstOrDefaultAsync();
+                
             return NotFound();
         }//Del método de details
 

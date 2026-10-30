@@ -8,6 +8,16 @@ namespace AppForSEII.API.Models
     {
         public Material(){}
 
+        public Material(int cantidad, string nombre, decimal precio, TipoMaterial tipoMaterial)
+        {
+            
+            Cantidad = cantidad;
+            Nombre = nombre;
+            Precio = precio;
+            TipoMaterial = tipoMaterial;
+
+        }
+
         [Key]
         public int IdMaterial{get; set;}
 
@@ -29,5 +39,7 @@ namespace AppForSEII.API.Models
         public List<MaterialAlquilado> MaterialAlquilados{get; set;}
 
         public TipoMaterial TipoMaterial{get; set;}
+
+        public TipoDeporte TipoDeporte{get; set;}
     }
 }

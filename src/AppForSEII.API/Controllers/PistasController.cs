@@ -103,8 +103,19 @@ namespace AppForSEII.API.Controllers
                 
                 // Ejecuta la consulta y devuelve el primer resultado, o null si no existe
                 .FirstOrDefaultAsync();
+
+            //¿Que pasa si la pista fuera null, es decir, que no existe, al menos en la base de datos?
+            if (pistaDetails == null)
+            {
+                // Dejamos registro en el servidor de que alguien o algo buscó una pista inválida
+                _logger.LogError($"{DateTime.Now} Error: Intento de acceder a detalles de una pista inexistente (ID: {id}).");
                 
-            return NotFound();
+                // Cumplimos con REST devolviendo el código correcto para "Recurso no encontrado"
+                return NotFound();
+            }
+
+            return Ok(pistaDetails);
+            
         }//Del método de details
 
     }//De la clase controlador

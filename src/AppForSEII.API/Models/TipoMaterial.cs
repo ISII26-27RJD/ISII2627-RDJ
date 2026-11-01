@@ -8,6 +8,11 @@ namespace AppForSEII.API.Models
     {
         public TipoMaterial(){}
 
+        public TipoMaterial(string nombre)
+        {
+            NombreTipoMaterial = nombre;
+        }
+
         [Key]
         [Display(Name = "IdTipoMaterial")]
         public int IdTipoMaterial{get; set;}
@@ -18,6 +23,7 @@ namespace AppForSEII.API.Models
         public string NombreTipoMaterial{get; set;}
 
         public List<Material> Material{get; set;} 
+ 
     }
 
 }

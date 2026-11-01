@@ -8,6 +8,17 @@ namespace AppForSEII.API.Models;
     {
         
         public MaterialAlquilado(){}
+
+        public MaterialAlquilado(int cantidad, Alquiler alquiler, Material material)
+        {
+            
+            Cantidad = cantidad;
+            Alquiler = alquiler;
+            Material = material;
+            IdAlquiler = alquiler.IdAlquiler;
+            IdMaterial = material.IdMaterial;
+            
+        }
         
         public int IdMaterial{get; set;}
 
@@ -24,7 +35,7 @@ namespace AppForSEII.API.Models;
         public decimal Precio{get; set;}
 
         [Display(Name = "Descripcion")]
-        [StringLength(1, ErrorMessage = " ladescripcion debe tener entre 1 y 500 caracteres",MinimumLength = 500)]
+        [StringLength(1, ErrorMessage = " la descripcion debe tener entre 1 y 500 caracteres",MinimumLength = 500)]
         public string? Descripcion{get; set;}
 
         public Alquiler Alquiler{get; set;}

@@ -44,7 +44,7 @@ namespace AppForSEII.API.Data
                     .FirstOrDefaultAsync(u => u.UserName == "peter@uclm.es");
 
                 //it initializes the database with an Inscripcion
-                SeedInscripciones(dbContext, user);
+                //SeedInscripciones(dbContext, user); //Por favor arregla esto, me saltan errores porque no puedes insertar null en "clientesID"
             }
             catch (Exception ex) {
                 logger.LogError(ex, "An error occurred seeding an Inscripcion in the Database.");
@@ -52,8 +52,8 @@ namespace AppForSEII.API.Data
 
             try {
                 // Vamos a iniciar la base de datos con instancias de Pista y Reserva, para la comprobación de funcionalidades.
-                // Por ahora dejamos la llamada al método comentada.
-                //SeedPistasYReservas(dbContext); //DESCOMENTAR A UN FUTURO
+                // Por ahora dejamos la llamada al método comentada. (SE DESCOMENTA CUANDO YA ESTE INICIALIZADA)
+                SeedPistasYReservas(dbContext); 
             }
             catch (Exception ex) {
                 logger.LogError(ex, "An error occurred seeding Pistas and Reservas in the Database.");

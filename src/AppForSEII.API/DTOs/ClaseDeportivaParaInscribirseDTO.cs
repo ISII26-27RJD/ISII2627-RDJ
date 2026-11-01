@@ -1,8 +1,8 @@
 namespace AppForSEII.Shared.ClassDTOs
 {
-    public class DTOInscribirseClasesDeportivas
+    public class ClaseDeportivaParaInscribirseDTO
     {
-        public DTOInscribirseClasesDeportivas(int id, string descripcion, string tipoDeporte, string monitor, string nivel, DateTime fechaHora, string? lugar, int plazasDisponibles, decimal precioUnitario)
+        public ClaseDeportivaParaInscribirseDTO(int id, string descripcion, string tipoDeporte, string monitor, string nivel, DateTime fechaHora, string? lugar, int plazasDisponibles, decimal precioUnitario)
         {
             Id = id;
             Descripcion = descripcion;
@@ -27,7 +27,7 @@ namespace AppForSEII.Shared.ClassDTOs
 
         public override bool Equals(object? obj)
         {
-            return obj is DTOInscribirseClasesDeportivas other &&
+            return obj is ClaseDeportivaParaInscribirseDTO other &&
                    Id == other.Id &&
                    Descripcion == other.Descripcion &&
                    TipoDeporte == other.TipoDeporte &&

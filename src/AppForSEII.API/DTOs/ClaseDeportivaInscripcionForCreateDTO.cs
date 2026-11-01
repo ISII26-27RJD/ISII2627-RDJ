@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AppForSEII.Shared.ClassDTOs
 {
-    public class ClassInscriptionForCreateDTO
+    public class ClaseDeportivaInscripcionForCreateDTO
     {
         [Required]
         public string NombreUsuario { get; set; }

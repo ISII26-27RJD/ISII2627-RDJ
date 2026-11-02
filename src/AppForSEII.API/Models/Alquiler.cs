@@ -10,7 +10,7 @@ namespace AppForSEII.API.Models
         
         public Alquiler(){}
 
-        public Alquiler(string nombre, string apellido, string DNI, string numero, DateTime fechaA, DateTime fechaI, DateTime fechaF, IList<MaterialAlquilado> materialAlquilados, MetodoPagoTipos metodoPago)
+        public Alquiler(string nombre, string apellido, string DNI, string numero, DateTime fechaA, IList<MaterialAlquilado> materialAlquilados, MetodoPagoTipos metodoPago)
         {
 
             NombreUsuario = nombre;
@@ -18,8 +18,6 @@ namespace AppForSEII.API.Models
             this.DNI = DNI;
             NumeroTelefono = numero;
             FechaAlquiler = fechaA;
-            FechaInicioAlquiler = fechaI;
-            FechaFinAlquiler = fechaF;
             MaterialesAlquilados = materialAlquilados;
             MetodoPago = metodoPago;
 
@@ -57,14 +55,6 @@ namespace AppForSEII.API.Models
         public DateTime FechaAlquiler{get; set;}
 
         [Required]
-        [Display(Name = "FechaInicioAlquiler")]
-        public DateTime FechaInicioAlquiler{set; get;}
-
-        [Required]
-        [Display(Name = "FechaFinAlquiler")]
-        public DateTime FechaFinAlquiler{get; set;}
-
-        [Required]
         [Display(Name = "PrecioTotal")]
         [Range(1,200,ErrorMessage ="Minimo 1")]
         public decimal PrecioTotal{get; set;}
@@ -74,6 +64,7 @@ namespace AppForSEII.API.Models
         public MetodoPagoTipos MetodoPago{get; set;}
 
         public IList<MaterialAlquilado> MaterialesAlquilados{get; set;}
+        
         
         public enum MetodoPagoTipos
         {

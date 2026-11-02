@@ -1,8 +1,8 @@
 namespace AppForSEII.Shared.ClassDTOs
 {
-    public class ClassInscriptionDetailDTO
+    public class ClaseDeportivaInscripcionDetailDTO
     {
-        public ClassInscriptionDetailDTO(int id, DateTime fechaInscripcion, string nombreUsuario, string apellidosUsuario, string dni, string telefono, string datosPago, MetodoPagoTypes metodoPago, decimal precioTotal, IList<ClassInscriptionItemDTO> clasesInscritas)
+        public ClaseDeportivaInscripcionDetailDTO(int id, DateTime fechaInscripcion, string nombreUsuario, string apellidosUsuario, string dni, string telefono, string datosPago, MetodoPagoTypes metodoPago, decimal precioTotal, IList<ClassInscriptionItemDTO> clasesInscritas)
         {
             Id = id;
             FechaInscripcion = fechaInscripcion;

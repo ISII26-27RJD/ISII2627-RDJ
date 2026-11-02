@@ -74,5 +74,50 @@ namespace AppForSEII.API.Controllers
 
         }// Del metodo de SELECT
 
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        //GET delos detalles de las pistas
+        [HttpGet]
+        [Route("[action]/{id}")] //nombre del método
+        [ProducesResponseType(typeof(PistaReservaDetailsDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult> GetPistaDetails(int id)
+        {
+            //Consulta de stock
+            var pistaDetails = await _context.Pistas
+                
+                // Cargamos la relación para poder aplanar el nombre del deporte
+                .Include(p => p.TipoDeporte)
+                
+                // Filtramos por la Clave Primaria que viene en la URL
+                .Where(p => p.IdPista == id)
+                
+                // Proyección al DTO
+                .Select(p => new PistaReservaDetailsDTO(
+                    p.IdPista,
+                    p.NombrePista,
+                    p.NPersonas,
+                    p.TipoDeporte.Nombre,
+                    p.Precio
+                ))
+                
+                // Ejecuta la consulta y devuelve el primer resultado, o null si no existe
+                .FirstOrDefaultAsync();
+
+            //¿Que pasa si la pista fuera null, es decir, que no existe, al menos en la base de datos?
+            if (pistaDetails == null)
+            {
+                // Dejamos registro en el servidor de que alguien o algo buscó una pista inválida
+                _logger.LogError($"{DateTime.Now} Error: Intento de acceder a detalles de una pista inexistente (ID: {id}).");
+                
+                // Cumplimos con REST devolviendo el código correcto para "Recurso no encontrado"
+                return NotFound();
+            }
+
+            return Ok(pistaDetails);
+            
+        }//Del método de details
+
     }//De la clase controlador
+
 }//Del namespace

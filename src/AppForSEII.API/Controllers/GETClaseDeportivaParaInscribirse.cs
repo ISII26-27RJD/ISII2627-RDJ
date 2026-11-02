@@ -23,11 +23,11 @@ namespace AppForSEII.API.Controllers
         // GET de seleccion 
         [HttpGet]
         [Route("[action]")]
-        [ProducesResponseType(typeof(IList<DTOInscribirseClasesDeportivas>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<ClaseDeportivaParaInscribirseDTO>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ValidationProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> GetSportClassesForRegistration(string? sportType, string? monitor, DateTime? date)
         {
-            IList<DTOInscribirseClasesDeportivas> selectClasses = await _context.ClasesDeportivas
+            IList<ClaseDeportivaParaInscribirseDTO> selectClasses = await _context.ClasesDeportivas
                 .Include(c => c.TipoDeporte)
                 .Where(c => 
                     (sportType == null || c.TipoDeporte.Nombre.Equals(sportType))
@@ -36,7 +36,7 @@ namespace AppForSEII.API.Controllers
                     && (c.PlazasDisponibles > 0)
                 )
                 .OrderBy(c => c.FechaHora)
-                .Select(c => new DTOInscribirseClasesDeportivas(
+                .Select(c => new ClaseDeportivaParaInscribirseDTO(
                     c.Id,
                     c.Descripcion,
                     c.TipoDeporte.Nombre,
@@ -54,7 +54,7 @@ namespace AppForSEII.API.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        [ProducesResponseType(typeof(ClassInscriptionDetailDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ClaseDeportivaInscripcionDetailDTO), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult> GetClassInscription(int id)
         {
@@ -63,7 +63,7 @@ namespace AppForSEII.API.Controllers
                 .Include(i => i.ClasesInscritas)
                     .ThenInclude(ci => ci.ClaseDeportiva)
                         .ThenInclude(cd => cd.TipoDeporte)
-                .Select(i => new ClassInscriptionDetailDTO(
+                .Select(i => new ClaseDeportivaInscripcionDetailDTO(
                     i.Id,
                     i.FechaInscripcion,
                     i.NombreUsuario,
@@ -97,10 +97,10 @@ namespace AppForSEII.API.Controllers
         // --- 3. POST crear inscripcion ---
         [HttpPost]
         [Route("[action]")]
-        [ProducesResponseType(typeof(ClassInscriptionDetailDTO), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(ClaseDeportivaInscripcionDetailDTO), (int)HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ValidationProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Conflict)]
-        public async Task<ActionResult> CreateClassInscription(ClassInscriptionForCreateDTO inscriptionForCreate)
+        public async Task<ActionResult> CreateClassInscription(ClaseDeportivaInscripcionForCreateDTO inscriptionForCreate)
         {
             if (inscriptionForCreate.ClasesInscritas.Count == 0)
             {
@@ -179,7 +179,7 @@ namespace AppForSEII.API.Controllers
                 return Conflict("Error: " + ex.Message);
             }
 
-            var resultDetail = new ClassInscriptionDetailDTO(
+            var resultDetail = new ClaseDeportivaInscripcionDetailDTO(
                 inscription.Id,
                 inscription.FechaInscripcion,
                 inscription.NombreUsuario,

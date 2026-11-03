@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AppForSEII.API.DTOs.ReservaDTOs
 {
-    public class PistaReservadaForCreateDTO
+    public class PistaReservadaForCreateItemDTO
     {
         [Required(ErrorMessage = "Debe indicar el ID de la pista que desea reservar.")]
         public int IdPista { get; set; }

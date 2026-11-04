@@ -10,7 +10,7 @@ using AppForSEII.API.Data;
 using AppForSEII.API.DTOs.AlquilarMaterialDTOs;
 using NuGet.ProjectModel;
 
-namespace AppForSEII.API.Controllers
+namespace AppForSEII.API.Controllers.AlquilarMaterialControllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -38,5 +38,7 @@ namespace AppForSEII.API.Controllers
 
             return Ok(selectMateriales);
         }
+
+        
     }
 }

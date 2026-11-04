@@ -141,6 +141,16 @@ namespace AppForSEII.API.Controllers
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
 
+            // Simulación de usuario autenticado.
+            // Buscamos a Peter para simular que es él quien hace la petición POST
+            var currentUser = await _context.Users.OfType<ApplicationUser>()
+                .FirstOrDefaultAsync(u => u.UserName == "peter@uclm.es");
+
+            if (currentUser == null)
+            {
+                return Unauthorized("Usuario no autenticado.");
+            }
+
             
             
         }

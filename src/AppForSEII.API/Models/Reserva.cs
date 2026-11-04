@@ -15,18 +15,12 @@ namespace AppForSEII.API.Models
         [Key]
         public int Id { get; set; }
 
+        // RELACIÓN CON EL CLIENTE (Sustituye a los campos sueltos de Nombre, Apellidos y DNI)
         [Required]
-        [StringLength(50, ErrorMessage = "El nombre no puede exceder los 50 caracteres.")]
-        public string NombreCliente { get; set; }
+        public string ClienteId { get; set; }
 
-        [Required]
-        [StringLength(100, ErrorMessage = "Los apellidos no pueden exceder los 100 caracteres.")]
-        public string Apellidos { get; set; }
-
-        // El dni tiene que empezar con exáctamenbte 8 dígitos y terminar con una letra.
-        [Required]
-        [RegularExpression(@"^\d{8}[A-Za-z]$", ErrorMessage = "El DNI debe tener el formato de 8 números seguidos de 1 letra.")]
-        public string Dni { get; set; }
+        [ForeignKey("ClienteId")]
+        public ApplicationUser Cliente { get; set; }
 
         // La fecha de la reserva debe ser en formato dd/MM/yyyy y no puede ser una fecha futura.
         [Required]
@@ -49,11 +43,10 @@ namespace AppForSEII.API.Models
         // CONSTRUCTORES
         public Reserva() { } // Requerido por EF Core
 
-        public Reserva(string nombreCliente, string apellidos, string dni, DateTime fechaReserva, MetodoPago metodoPago, decimal precioTotal)
+        // Constructor actualizado
+        public Reserva(string clienteId, DateTime fechaReserva, MetodoPago metodoPago, decimal precioTotal)
         {
-            NombreCliente = nombreCliente;
-            Apellidos = apellidos;
-            Dni = dni;
+            ClienteId = clienteId;
             FechaReserva = fechaReserva;
             MetodoPago = metodoPago;
             PrecioTotal = precioTotal;

@@ -243,6 +243,49 @@ namespace AppForSEII.API.Data
             dbContext.SaveChanges();
 
             var pistasSet = dbContext.Set<Pista>();
+
+            //Al vaciar la base de datos, la dejé en un estado inestable (creada, pero vacia). En caso de que esto vuelva a suceder, dejo el siguiente if
+            /*
+            if (!pistasSet.Any()) 
+            {
+                pistasSet.Add(new Pista("Pista Central Pádel", 4, 12.00m, 1, tipoPadel.Id)); 
+                pistasSet.Add(new Pista("Pista Exterior Tenis", 4, 15.50m, 1, tipoTenis.Id));
+                dbContext.SaveChanges(); 
+
+                //Nuevo problema, constructor espera cinco parámetros
+                //El último es un ID de los objetos, que aunque ya existen, no están asignados en SQL
+            }
+            */
+
+            //Voy a probar que Entity Framework, al pasarle el objeto "TipoDeporte" a la pista, gestione IDs por nosotros
+
+            // Usamos la propiedad de navegación en vez del ID para evitar el conflicto FK
+            if (!pistasSet.Any(p => p.NombrePista == "Pista Central Pádel")) {
+                var nuevaPistaPadel = new Pista {
+                    NombrePista = "Pista Central Pádel",
+                    NPersonas = 4,
+                    Precio = 12.00m,
+                    Stock = 1,
+                    TipoDeporte = tipoPadel // Pasamos objeto entero
+                };
+                pistasSet.Add(nuevaPistaPadel);
+            }
+
+            if (!pistasSet.Any(p => p.NombrePista == "Pista Exterior Tenis")) {
+                var nuevaPistaTenis = new Pista {
+                    NombrePista = "Pista Exterior Tenis",
+                    NPersonas = 4,
+                    Precio = 15.50m,
+                    Stock = 1,
+                    TipoDeporte = tipoTenis // Pasamos objeto entero
+                };
+                pistasSet.Add(nuevaPistaTenis);
+            }
+
+            /*
+            
+            //ESTE BLOQUE ESTA OBSOLETO, PERO ES UNA MARCA DE LO QUE ANTES SE USABA PARA AÑADIR EN LA COLA DE ESPERA PARA LA BASE DE DATOS
+
             //Idempotencia: Solo insertamos la pista si no existe una con ese nombre (si arranco 20 veces, solo se insertará la primera vez).
             if (pistasSet.FirstOrDefault(p => p.NombrePista == "Pista Central Pádel") == null) {
                 pistasSet.Add(new Pista("Pista Central Pádel", 4, 12.00m, 1, tipoPadel.Id));
@@ -251,16 +294,21 @@ namespace AppForSEII.API.Data
             if (pistasSet.FirstOrDefault(p => p.NombrePista == "Pista Exterior Tenis") == null) {
                 pistasSet.Add(new Pista("Pista Exterior Tenis", 4, 15.50m, 1, tipoTenis.Id));
             }
+            */
             
-            // Guardado intermedio: SQL inserta las pistas, genera sus 'IdPista' reales 
+            // Guardado intermedio: SQL inserta las pistas, genera sus 'IdPista' reales
             // en la base de datos y podemos usarlos en el siguiente bloque para las Reservas.
             dbContext.SaveChanges(); 
+
+            // Buscamos al usuario aquí mismo para poder usar su ID.
+            var user = dbContext.Users.OfType<ApplicationUser>().FirstOrDefault(u => u.UserName == "peter@uclm.es");
+            if (user == null) return; // Si no hay usuario, abortamos la creación de la reserva.
 
             //Lógica de negócio: Solo insertamos reservas si no existen ya en la base de datos.
             var reservasSet = dbContext.Set<Reserva>();
 
-            // Verificamos por DNI para mantener la idempotencia en las Reservas
-            if (reservasSet.FirstOrDefault(r => r.Dni == "12345678A") == null)
+            // Verificamos con ClienteId, en lugar de por Dni, para mantener la idempotencia en las Reservas
+            if (reservasSet.FirstOrDefault(r => r.ClienteId == user.Id) == null)
             {
                 // Rescatamos las pistas recién creadas con sus IDs ya consolidados
                 var pistaPadel = pistasSet.FirstOrDefault(p => p.NombrePista == "Pista Central Pádel");
@@ -270,8 +318,13 @@ namespace AppForSEII.API.Data
                 if (pistaPadel != null && pistaTenis != null)
                 {
                     //Creamos padre
-                    var reserva = new Reserva("Juan", "Pérez", "12345678A", DateTime.Now.AddDays(2), MetodoPago.Tarjeta, 27.50m);
-                    reserva.PistasReservadas = new List<PistaReservada>();
+                    // CÓDIGO ARREGLADO (Nuevo)
+                    var reserva = new Reserva(
+                        user.Id,               // Le pasamos el ID del cliente real de la base de datos
+                        DateTime.Today,        // FechaReserva
+                        MetodoPago.Tarjeta,    // MetodoPago
+                        15.00m                 // PrecioTotal
+                    );
 
                     //Vamos con desgloses (las uniones n:m)
                     //Para no asignar IDs manualmente, pasamos los objetos enteros
@@ -300,6 +353,17 @@ namespace AppForSEII.API.Data
                     //pistaTenis.Stock -= reservaTenis.Cantidad;
 
                     reservasSet.Add(reserva);
+
+                    /*
+                    ¿Por qué me sale una lista vacia, tras probar mi método de SELECT sin ningún parámetro?
+
+                    ->He creados pista de padel y ténis con el stock de 1.
+                    ->Peter ha reservado a fecha de hoy una pista de padel y otra de tenis.
+                    ->En el controlador, si no hay filtros, usa la fecha de hoy, y como hoy hay 0 plazas libres, SOLD-OUT.
+
+                    -> Usa una fecha en el futuro, como "2028-12-01", y veras que aparecen las dos pistas, porqeu nadie ha reservado para esa fecha.
+                    ->Además, prueba con IDs 1 y 2, da igual la fecha, vemos detalles de ambas pistas.
+                    */
 
                 }//Del segundo if
             }//Del primer if

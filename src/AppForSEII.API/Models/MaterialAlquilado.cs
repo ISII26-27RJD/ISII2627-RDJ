@@ -17,6 +17,7 @@ namespace AppForSEII.API.Models;
             Material = material;
             IdAlquiler = alquiler.IdAlquiler;
             IdMaterial = material.IdMaterial;
+            Precio = material.Precio;
             
         }
         

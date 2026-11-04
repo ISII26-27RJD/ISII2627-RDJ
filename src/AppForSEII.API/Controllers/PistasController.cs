@@ -27,8 +27,9 @@ namespace AppForSEII.API.Controllers
         }
 
         //GET de seleccionar pistas para reserva
-        [HttpGet]
-        [Route("[action]")]
+        //[HttpGet]
+        //[Route("[action]")]
+        [HttpGet("[action]")] // Se cambio a esta forma por detección del fallo 500
         [ProducesResponseType(typeof(IList<PistaParaReservarDTO>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ValidationProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> GetPistasParaReservar(string? nombreDeporte, DateTime? fechaReserva)

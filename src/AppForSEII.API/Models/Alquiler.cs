@@ -10,6 +10,21 @@ namespace AppForSEII.API.Models
         
         public Alquiler(){}
 
+        public Alquiler(string nombre, string apellido, string DNI, string numero, DateTime fechaA, IList<MaterialAlquilado> materialAlquilados, MetodoPagoTipos metodoPago)
+        {
+
+            NombreUsuario = nombre;
+            ApellidosUsuario = apellido;
+            this.DNI = DNI;
+            NumeroTelefono = numero;
+            FechaAlquiler = fechaA;
+            MaterialesAlquilados = materialAlquilados;
+            MetodoPago = metodoPago;
+
+            PrecioTotal = decimal.Round(materialAlquilados.Sum(pi => pi.Precio * pi.Cantidad), 2);
+            
+        }
+
         [Key]
         [Display(Name = "IdAlquiler")]
         public int IdAlquiler{get; set;}
@@ -40,14 +55,6 @@ namespace AppForSEII.API.Models
         public DateTime FechaAlquiler{get; set;}
 
         [Required]
-        [Display(Name = "FechaInicioAlquiler")]
-        public DateTime FechaInicioAlquiler{set; get;}
-
-        [Required]
-        [Display(Name = "FechaFinAlquiler")]
-        public DateTime FechaFinAlquiler{get; set;}
-
-        [Required]
         [Display(Name = "PrecioTotal")]
         [Range(1,200,ErrorMessage ="Minimo 1")]
         public decimal PrecioTotal{get; set;}
@@ -56,7 +63,8 @@ namespace AppForSEII.API.Models
         [Display(Name = "MetodoPago")]
         public MetodoPagoTipos MetodoPago{get; set;}
 
-        public List<MaterialAlquilado> MaterialesAlquilados{get; set;}
+        public IList<MaterialAlquilado> MaterialesAlquilados{get; set;}
+        
         
         public enum MetodoPagoTipos
         {

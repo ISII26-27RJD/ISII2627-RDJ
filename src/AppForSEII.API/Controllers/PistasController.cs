@@ -122,7 +122,9 @@ namespace AppForSEII.API.Controllers
         
         [HttpPost]
         [Route("[action]")]
-        [ProducesResponseType(typeof(PistaReservaDetailsDTO), (int)System.Net.HttpStatusCode.Created)]
+        // De momento no sé como devolver un DTO especifico, así que para la gracias de las pruebas, solo decimos que devolvemos un 201 Created
+        // Ojo, pienso que esto no será algo definitivo, por lo que la respuesta que mande será distinta.
+        [ProducesResponseType((int)System.Net.HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ValidationProblemDetails), (int)System.Net.HttpStatusCode.BadRequest)]
         public async Task<ActionResult> CreateReserva(ReservaForCreateDTO reservaForCreate)
         {
@@ -200,12 +202,21 @@ namespace AppForSEII.API.Controllers
                 precioTotalCalculado += pistaReal.Precio; 
             }//Del for-each
 
-            // 5. Asignar el precio final a prueba de manipulaciones
+            // Asignar el precio final a prueba de manipulaciones
             nuevaReserva.PrecioTotal = precioTotalCalculado;
 
-            // 6. Guardar en Base de Datos (Transacción atómica de EF Core)
+            // Guardar en Base de Datos (Transacción atómica de EF Core)
             _context.Reservas.Add(nuevaReserva);
             await _context.SaveChangesAsync();
+
+            // 7. Retornar 201 Created (Minimalista)
+            // Devolvemos un objeto anónimo solo con el ID. Si en el futuro tienemos un método GET 
+            // para ver los detalles de una reserva (Lista de detalles), cambia string.Empty por el nombre de ese método.
+            //(posiblemente necesario un quinto DTO)
+            return Created(string.Empty, new { 
+                mensaje = "Reserva procesada correctamente", 
+                idReserva = nuevaReserva.Id
+            });
             
         }//Del método POST
 

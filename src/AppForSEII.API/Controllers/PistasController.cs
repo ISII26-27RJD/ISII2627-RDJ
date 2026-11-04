@@ -151,7 +151,13 @@ namespace AppForSEII.API.Controllers
                 return Unauthorized("Usuario no autenticado.");
             }
 
-            
+            // 3. Crear la entidad principal (Reserva)
+            var nuevaReserva = new Reserva(
+                clienteId: currentUser.Id,
+                fechaReserva: DateTime.Today, // El CU asume que la reserva es para hoy
+                metodoPago: reservaForCreate.MetodoPago,
+                precioTotal: 0m // Lo calcularemos en el siguiente paso de forma segura
+            );
             
         }
 

@@ -1,41 +1,58 @@
+using AppForSEII.API.Data;
 using AppForSEII.API.Models;
 using AppForSEII.Shared.ClassDTOs;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace AppForSEII.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SportClassesController : ControllerBase
+    public class GETClaseDeportivaParaInscribirse : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-        private readonly ILogger<SportClassesController> _logger;
+        private readonly ILogger<GETClaseDeportivaParaInscribirse> _logger;
 
-        public SportClassesController(ApplicationDbContext context, ILogger<SportClassesController> logger)
+        public GETClaseDeportivaParaInscribirse(ApplicationDbContext context, ILogger<GETClaseDeportivaParaInscribirse> logger)
         {
             _context = context;
             _logger = logger;
         }
 
-        // GET de seleccion 
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(typeof(IList<ClaseDeportivaParaInscribirseDTO>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ValidationProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> GetSportClassesForRegistration(string? sportType, string? monitor, DateTime? date)
+        public async Task<ActionResult> GetClasesDeportivasParaInscribirse(
+            string? filtroNombre, 
+            string? filtroTipoDeporte, 
+            DateTime? fromDate, 
+            DateTime? toDate)
         {
-            IList<ClaseDeportivaParaInscribirseDTO> selectClasses = await _context.ClasesDeportivas
+            if (fromDate != null && toDate != null && fromDate.Value > toDate.Value)
+            {
+                ModelState.AddModelError("fromDate", "fromDate must be earlier than toDate");
+                _logger.LogError($"{DateTime.Now} Error: fromDate must be earlier than toDate");
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+
+            var query = _context.ClasesDeportivas
                 .Include(c => c.TipoDeporte)
                 .Where(c => 
-                    (sportType == null || c.TipoDeporte.Nombre.Equals(sportType))
-                    && (monitor == null || c.Monitor.Contains(monitor))
-                    && (date == null || c.FechaHora.Date.Equals(date.Value.Date))
+                    (filtroNombre == null || c.Descripcion.Contains(filtroNombre))
+                    && (filtroTipoDeporte == null || c.TipoDeporte.Nombre.Equals(filtroTipoDeporte))
+                    && (fromDate == null || c.FechaHora.Date >= fromDate.Value.Date)
+                    && (toDate == null || c.FechaHora.Date <= toDate.Value.Date)
                     && (c.PlazasDisponibles > 0)
                 )
-                .OrderBy(c => c.FechaHora)
+                .OrderBy(c => c.Descripcion);
+
+            var selectClasses = await query
                 .Select(c => new ClaseDeportivaParaInscribirseDTO(
                     c.Id,
                     c.Descripcion,
@@ -56,7 +73,7 @@ namespace AppForSEII.API.Controllers
         [Route("[action]")]
         [ProducesResponseType(typeof(ClaseDeportivaInscripcionDetailDTO), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult> GetClassInscription(int id)
+        public async Task<ActionResult> GetInscripcionClaseDeportiva(int id)
         {
             var inscription = await _context.Inscripciones
                 .Where(i => i.Id == id)
@@ -87,32 +104,35 @@ namespace AppForSEII.API.Controllers
 
             if (inscription == null)
             {
-                _logger.LogError($"Error: Inscripción con id {id} no existe");
+                _logger.LogError($"Error: Inscripcion con id {id} no existe");
                 return NotFound();
             }
 
             return Ok(inscription);
         }
 
-        // --- 3. POST crear inscripcion ---
         [HttpPost]
         [Route("[action]")]
         [ProducesResponseType(typeof(ClaseDeportivaInscripcionDetailDTO), (int)HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ValidationProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Conflict)]
-        public async Task<ActionResult> CreateClassInscription(ClaseDeportivaInscripcionForCreateDTO inscriptionForCreate)
+        public async Task<ActionResult> CreateInscripcionClaseDeportiva(ClaseDeportivaInscripcionForCreateDTO inscripcionForCreate)
         {
-            if (inscriptionForCreate.ClasesInscritas.Count == 0)
+            if (inscripcionForCreate.ClasesInscritas == null || inscripcionForCreate.ClasesInscritas.Count == 0)
             {
-                ModelState.AddModelError("ClasesInscritas", "Error! Debe incluir al menos una clase deportiva.");
-            }
-
-            if (ModelState.ErrorCount > 0)
-            {
+                ModelState.AddModelError("ClasesInscritas", "Error! Debes incluir al menos una clase deportiva para inscribirte");
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
 
-            var claseIds = inscriptionForCreate.ClasesInscritas.Select(ci => ci.ClaseDeportivaId).ToList();
+            var user = await _context.Users
+                .OfType<ApplicationUser>()
+                .FirstOrDefaultAsync(u => u.UserName == inscripcionForCreate.NombreUsuario || u.DNI == inscripcionForCreate.Dni);
+
+            if (user == null)
+            {
+                ModelState.AddModelError("NombreUsuario", "Error! El nombre de usuario no esta registrado");
+            }
+
+            var claseIds = inscripcionForCreate.ClasesInscritas.Select(ci => ci.ClaseDeportivaId).ToList();
 
             var classes = await _context.ClasesDeportivas
                 .Include(c => c.TipoDeporte)
@@ -120,32 +140,36 @@ namespace AppForSEII.API.Controllers
                 .ToListAsync();
 
             var inscription = new Inscripcion(
-                inscriptionForCreate.NombreUsuario,
-                inscriptionForCreate.ApellidosUsuario,
-                inscriptionForCreate.Dni,
-                inscriptionForCreate.Telefono,
+                inscripcionForCreate.NombreUsuario,
+                inscripcionForCreate.ApellidosUsuario,
+                inscripcionForCreate.Dni,
+                inscripcionForCreate.Telefono,
                 DateTime.Now,
-                (MetodoPago)(int)inscriptionForCreate.MetodoPago,
+                (MetodoPago)(int)inscripcionForCreate.MetodoPago,
                 0,
-                inscriptionForCreate.DatosPago
+                inscripcionForCreate.DatosPago
             );
+
+            if (user != null)
+            {
+                inscription.Cliente = user;
+            }
 
             inscription.ClasesInscritas = new List<ClaseInscrita>();
             decimal totalPrice = 0;
 
-            foreach (var item in inscriptionForCreate.ClasesInscritas)
+            foreach (var item in inscripcionForCreate.ClasesInscritas)
             {
                 var sportClass = classes.FirstOrDefault(c => c.Id == item.ClaseDeportivaId);
 
                 if (sportClass == null || sportClass.PlazasDisponibles < item.PlazasReservadas)
                 {
-                    ModelState.AddModelError("ClasesInscritas", $"Error! La clase deportiva con id '{item.ClaseDeportivaId}' no existe o no tiene suficientes plazas disponibles.");
+                    ModelState.AddModelError("ClasesInscritas", $"Error! La clase deportiva '{item.ClaseDeportivaId}' no esta disponible para inscribirse");
                 }
                 else
                 {
                     decimal itemTotal = sportClass.PrecioUnitario * item.PlazasReservadas;
                     
-                    // Usamos el constructor exacto de ClaseInscrita.cs
                     inscription.ClasesInscritas.Add(new ClaseInscrita(
                         sportClass.Id, 
                         inscription.Id, 
@@ -154,7 +178,6 @@ namespace AppForSEII.API.Controllers
                         item.Observaciones
                     ));
 
-                    // Descontar plazas disponibles
                     sportClass.PlazasDisponibles -= item.PlazasReservadas;
                     totalPrice += itemTotal;
                 }
@@ -168,16 +191,7 @@ namespace AppForSEII.API.Controllers
             }
 
             _context.Add(inscription);
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                return Conflict("Error: " + ex.Message);
-            }
+            await _context.SaveChangesAsync();
 
             var resultDetail = new ClaseDeportivaInscripcionDetailDTO(
                 inscription.Id,
@@ -187,14 +201,14 @@ namespace AppForSEII.API.Controllers
                 inscription.DNI,
                 inscription.Telefono,
                 inscription.DatosPago,
-                inscriptionForCreate.MetodoPago,
+                inscripcionForCreate.MetodoPago,
                 inscription.PrecioTotal,
                 inscription.ClasesInscritas.Select(ci => {
                     var sc = classes.First(c => c.Id == ci.ClaseDeportivaId);
                     return new ClassInscriptionItemDTO(
                         sc.Id,
                         sc.Descripcion,
-                        sc.TipoDeporte?.Nombre ?? "",
+                        sc.TipoDeporte.Nombre,
                         sc.FechaHora,
                         ci.PlazasReservadas,
                         ci.Precio,
@@ -203,7 +217,7 @@ namespace AppForSEII.API.Controllers
                 }).ToList()
             );
 
-            return CreatedAtAction("GetClassInscription", new { id = inscription.Id }, resultDetail);
+            return CreatedAtAction(nameof(GetInscripcionClaseDeportiva), new { id = inscription.Id }, resultDetail);
         }
     }
 }

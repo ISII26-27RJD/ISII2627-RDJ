@@ -127,6 +127,21 @@ namespace AppForSEII.API.Controllers
         public async Task<ActionResult> CreateReserva(ReservaForCreateDTO reservaForCreate)
         {
             //Namespace de DTOS para POST corregidos
+
+            //Necesitamos pasar ciertos filtros antes de tocar nada
+            if (_context.Reservas == null) //¿¿La tabla de reservas ha sido insertada en la basede datos???
+            {
+                return Problem("Entity set 'ApplicationDbContext.Reservas' is null.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                //¿Que es modelstate? Un diccionario interno de ASP.NET Core. Cuando JSON del frontend llega al servidor, framework intenta encajarlo con el DTO de post.
+                // Leemos en el proceso todas las reglas ya establecidas (required, minlength, etc). Si alguna regla no se cumple, entonces la bandera se pone en falso
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+
+            
             
         }
 

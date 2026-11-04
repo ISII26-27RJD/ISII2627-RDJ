@@ -118,6 +118,18 @@ namespace AppForSEII.API.Controllers
             
         }//Del método de details
 
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        
+        [HttpPost]
+        [Route("[action]")]
+        [ProducesResponseType(typeof(PistaReservaDetailsDTO), (int)System.Net.HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), (int)System.Net.HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> CreateReserva(ReservaForCreateDTO reservaForCreate)
+        {
+            //Namespace de DTOS para POST corregidos
+            
+        }
+
     }//De la clase controlador
 
 }//Del namespace

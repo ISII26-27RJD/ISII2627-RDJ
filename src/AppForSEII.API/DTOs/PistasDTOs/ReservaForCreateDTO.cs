@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using AppForSEII.API.Models;
 
 
-namespace AppForSEII.API.DTOs.ReservaDTOs
+namespace AppForSEII.API.DTOs.PistasDTOs
 {
     public class ReservaForCreateDTO
     {

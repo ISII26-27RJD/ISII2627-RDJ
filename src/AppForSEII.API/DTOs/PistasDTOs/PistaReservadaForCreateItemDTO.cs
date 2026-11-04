@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace AppForSEII.API.DTOs.ReservaDTOs
+namespace AppForSEII.API.DTOs.PistasDTOs
 {
     public class PistaReservadaForCreateItemDTO
     {

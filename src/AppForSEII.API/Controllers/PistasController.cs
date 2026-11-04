@@ -198,7 +198,14 @@ namespace AppForSEII.API.Controllers
 
                 nuevaReserva.PistasReservadas.Add(pistaReservada); //Añadimos a la lista de reservas
                 precioTotalCalculado += pistaReal.Precio; 
-            }
+            }//Del for-each
+
+            // 5. Asignar el precio final a prueba de manipulaciones
+            nuevaReserva.PrecioTotal = precioTotalCalculado;
+
+            // 6. Guardar en Base de Datos (Transacción atómica de EF Core)
+            _context.Reservas.Add(nuevaReserva);
+            await _context.SaveChangesAsync();
             
         }//Del método POST
 

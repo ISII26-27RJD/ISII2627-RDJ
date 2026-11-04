@@ -158,8 +158,49 @@ namespace AppForSEII.API.Controllers
                 metodoPago: reservaForCreate.MetodoPago,
                 precioTotal: 0m // Lo calcularemos en el siguiente paso de forma segura
             );
+
+            decimal precioTotalCalculado = 0;
+
+            // 4. Procesar el carrito (Desglose de pistas)
+            foreach (var itemDTO in reservaForCreate.PistasReservadas)
+            {
+                //Buscar la pista real en base de datos para obtener su precio y stock verificados
+                var pistaReal = await _context.Pistas.FirstOrDefaultAsync(p => p.IdPista == itemDTO.IdPista);
+                
+                if (pistaReal == null)
+                {
+                    ModelState.AddModelError("PistaNoEncontrada", $"La pista con ID {itemDTO.IdPista} no existe.");
+                    return BadRequest(new ValidationProblemDetails(ModelState));
+                }
+
+                // Verificar disponibilidad (¿tengo suficientes pistas como para que hoy se pueda reservar?)
+                var ocupadasHoy = await _context.PistasReservadas
+                    .Where(pr => pr.IdPista == pistaReal.IdPista && pr.Reserva.FechaReserva.Date == DateTime.Today)
+                    .SumAsync(pr => pr.Cantidad);
+
+                if (ocupadasHoy + 1 > pistaReal.Stock) 
+                {
+                    // Si las pistas que de momento tenemos reservadas + 1, supera la cantidad real de stock que tenemos a mano.....
+                    // +1 porque estamos intentando reservar 1 cantidad
+                    ModelState.AddModelError("SinStock", $"La pista '{pistaReal.NombrePista}' ya está agotada para hoy.");
+                    return BadRequest(new ValidationProblemDetails(ModelState));
+                }
+
+                // Generamos la pista reservada si tenemos stock
+                var pistaReservada = new PistaReservada
+                {
+                    Cantidad = 1,
+                    Precio = pistaReal.Precio, // Precio real de la BD, no del Frontend
+                    Observaciones = itemDTO.Observaciones,
+                    IdPista = pistaReal.IdPista,
+                    Reserva = nuevaReserva
+                };
+
+                nuevaReserva.PistasReservadas.Add(pistaReservada); //Añadimos a la lista de reservas
+                precioTotalCalculado += pistaReal.Precio; 
+            }
             
-        }
+        }//Del método POST
 
     }//De la clase controlador
 

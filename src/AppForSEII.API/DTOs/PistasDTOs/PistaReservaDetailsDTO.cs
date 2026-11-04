@@ -33,7 +33,7 @@ namespace AppForSEII.API.DTOs.PistasDTOs
         public string NombreDeporte { get; set; } = "Deporte";
 
         [Required]
-        [DataType(System.ComponentModel.DataAnnotations.DataType.Currency)]
+        [DataType(System.ComponentModel.DataAnnotations.DataType.Currency)] //Buscar otra posible forma de escribir esto por si acaso
         [Range(0.01, (double)decimal.MaxValue, ErrorMessage = "El precio debe ser superior a 0.")]
         public decimal Precio { get; set; } = 1m; //La m viene de monetary, por defecto esto mostrará 1.00 si no se define valor
 

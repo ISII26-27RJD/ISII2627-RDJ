@@ -3,7 +3,7 @@ namespace AppForSEII.API.DTOs.AlquilarMaterialDTOs
     
     public class AlquilerMaterialPOSTDTO
     {
-        public AlquilerMaterialPOSTDTO(string DNI, string nombre,string apellidos, string telefono, Alquiler.MetodoPagoTipos metodopago, DateTime fechaAlquiuler, IList<ItemsMaterialDTO> items)
+        public AlquilerMaterialPOSTDTO(string DNI, string nombre,string apellidos, string telefono, Alquiler.MetodoPagoTipos metodopago, DateTime fechaAlquiler, IList<ItemsMaterialDTO> items)
         {
 
             this.DNI = DNI;
@@ -11,7 +11,7 @@ namespace AppForSEII.API.DTOs.AlquilarMaterialDTOs
             ApellidosUsuario = apellidos;
             NumeroTelefono = telefono;
             MetodoPago = metodopago;
-            FechaAlquiler = fechaAlquiuler;
+            FechaAlquiler = fechaAlquiler;
             MaterialesAlquilados = items;
 
         }
@@ -59,7 +59,7 @@ namespace AppForSEII.API.DTOs.AlquilarMaterialDTOs
             ApellidosUsuario == dto.ApellidosUsuario &&
             NumeroTelefono == dto.NumeroTelefono &&
             MetodoPago == dto.MetodoPago &&
-            FechaAlquiler == dto.FechaAlquiler &&
+            FechaAlquiler.Date == dto.FechaAlquiler.Date &&
             MaterialesAlquilados.SequenceEqual(dto.MaterialesAlquilados);
 
         }

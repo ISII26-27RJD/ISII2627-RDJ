@@ -8,14 +8,14 @@ namespace AppForSEII.API.Models
     {
         public Material(){}
 
-        public Material(int cantidad, string nombre, decimal precio, TipoMaterial tipoMaterial)
+        public Material(int cantidad, string nombre, decimal precio, TipoMaterial tipoMaterial, TipoDeporte tipoDeporte)
         {
             
             Cantidad = cantidad;
             Nombre = nombre;
             Precio = precio;
             TipoMaterial = tipoMaterial;
-
+            TipoDeporte = tipoDeporte;
         }
 
         [Key]

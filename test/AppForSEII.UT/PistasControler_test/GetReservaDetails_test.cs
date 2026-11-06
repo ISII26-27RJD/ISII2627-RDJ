@@ -59,6 +59,44 @@ namespace AppForSEII.UT.PistasController_test
 
             // Assert: Verificamos que devuelve el código 404 (NotFound)
             Assert.IsType<NotFoundResult>(result);
-        }
+        }//De not found
+
+        [Fact]
+        [Trait("LevelTesting", "Unit Testing")]
+        public async Task GetReservaDetails_Found_test()
+        {
+            // Arrange
+            var mock = new Mock<ILogger<PistasController>>();
+            var controller = new PistasController(_context, mock.Object);
+
+            var pistaDto = new PistaReservadaForCreateItemDTO(1, "Sin observaciones", "Pista Central Pádel", "Pádel", 4, 12m);
+            var pistasDtoList = new List<PistaReservadaForCreateItemDTO>();
+            pistasDtoList.Add(pistaDto);
+
+            // Creamos el ticket esperado exacto. 
+            var expectedDetails = new ReservaDetailsDTO(
+                1, 
+                DateTime.Today, 
+                MetodoPago.Tarjeta, 
+                "****-****-****-****", 
+                pistasDtoList, 
+                "33333333C", 
+                "Peter", 
+                "Jackson", 
+                "peter@uclm.es", 
+                "666555444"
+            );
+
+            // Act: Buscamos el ID 1, que es el que SQLite generó en el constructor
+            var result = await controller.GetReservaDetails(1);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var actualDetails = Assert.IsType<ReservaDetailsDTO>(okResult.Value);
+            
+            //  Tenemos que usar Assert.Equal para invocar el override Equals
+            Assert.Equal(expectedDetails, actualDetails);
+        }//De found
+        
     }//De la clase
 }//Del namespace

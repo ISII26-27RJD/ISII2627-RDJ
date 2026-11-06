@@ -34,7 +34,7 @@ namespace AppForSEII.API.Controllers.AlquilarMaterialControllers
         public async Task<ActionResult> DetailsAlquilerMaterial(int id)
         {
             var alquiler = await _context.Alquileres.Where(a => a.IdAlquiler == id).Include(m => m.MaterialesAlquilados).ThenInclude(m => m.Material)
-            .Select(a => new AlquilerMaterialDETAILSDTO(a.IdAlquiler, a.DNI, a.NombreUsuario, a.ApellidosUsuario, a.NumeroTelefono, a.MetodoPago, a.FechaAlquiler,
+            .Select(a => new AlquilerMaterialDETAILSDTO(a.IdAlquiler, a.Usuario.DNI, a.Usuario.Name, a.Usuario.Surname, a.Usuario.PhoneNumber, a.MetodoPago, a.FechaAlquiler,
             a.MaterialesAlquilados.Select(m => new ItemsMaterialDTO(m.Material.IdMaterial, m.Material.Nombre, m.Precio, m.Cantidad, m.Material.TipoMaterial.NombreTipoMaterial, m.Material.TipoDeporte.NombreTipoDeporte)).ToList()))
             .FirstOrDefaultAsync();
             
@@ -77,7 +77,7 @@ namespace AppForSEII.API.Controllers.AlquilarMaterialControllers
             var materiales = _context.Materiales.Include(m => m.MaterialAlquilados).ThenInclude(a => a.Alquiler)
             .Where(m => nombreMateriales.Contains(m.Nombre)).ToList();
 
-            Alquiler alquiler = new Alquiler(alquilerCr.NombreUsuario, alquilerCr.ApellidosUsuario, alquilerCr.DNI, alquilerCr.NumeroTelefono, alquilerCr.FechaAlquiler, new List<MaterialAlquilado>(), alquilerCr.MetodoPago);
+            Alquiler alquiler = new Alquiler(user, alquilerCr.FechaAlquiler, new List<MaterialAlquilado>(), alquilerCr.MetodoPago);
             
             
 
@@ -102,6 +102,7 @@ namespace AppForSEII.API.Controllers.AlquilarMaterialControllers
                 else{
                     
                     MaterialAlquilado materialAq = new MaterialAlquilado(item.Cantidad, alquiler, material);
+                    material.Cantidad -= item.Cantidad;
                     materialAq.Precio =  item.Precio;
                     alquiler.MaterialesAlquilados.Add(materialAq);
                     
@@ -130,10 +131,10 @@ namespace AppForSEII.API.Controllers.AlquilarMaterialControllers
 
             }
 
-            var alquilerDetail = new AlquilerMaterialDETAILSDTO(alquiler.IdAlquiler, alquiler.DNI, alquiler.NombreUsuario, alquiler.ApellidosUsuario, alquiler.NumeroTelefono, 
+            var alquilerDetail = new AlquilerMaterialDETAILSDTO(alquiler.IdAlquiler, alquiler.Usuario.DNI, alquiler.Usuario.Name, alquiler.Usuario.Surname, alquiler.Usuario.PhoneNumber, 
             alquiler.MetodoPago, alquiler.FechaAlquiler, alquilerCr.MaterialesAlquilados);
 
-            return CreatedAtAction("DetailsAlquilerMaterial", new { id = alquiler.IdAlquiler, alquilerDetail});
+            return CreatedAtAction("DetailsAlquilerMaterial", new { id = alquiler.IdAlquiler}, alquilerDetail);
 
         }
     }

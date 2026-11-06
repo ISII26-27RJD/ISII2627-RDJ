@@ -1,57 +1,48 @@
 using System;
-using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
+using AppForSEII.API.Models;
 
 namespace AppForSEII.API.DTOs.PistasDTOs
 {
-    public class PistaReservaDetailsDTO
+    // Los detalles no es concepto aislado; es exactamente la misma petición 
+    // original de POST, pero enriquecida con los sellos oficiales del servidor (ID y Fecha).
+    public class ReservaDetailsDTO : ReservaForCreateDTO
     {
-        // Constructor vacío
-        public PistaReservaDetailsDTO()
+        public ReservaDetailsDTO() : base() { }
+
+        // CORRECCION: added 'string datosPago' para que el constructor base no colapse.
+        public ReservaDetailsDTO(int id, DateTime fechaReserva, MetodoPago metodoPago, string datosPago,
+                                 IList<PistaReservadaForCreateItemDTO> pistasReservadas,
+                                 string clienteDNI, string clienteNombre, string clienteApellidos, 
+                                 string clienteEmail, string clienteTelefono)
+            // Delegamos toda la asignación de datos a la clase padre, el POST
+            // Esto evita violar el principio DRY (Don't Repeat Yourself).
+            : base(metodoPago, datosPago, pistasReservadas, clienteDNI, clienteNombre, clienteApellidos, clienteEmail, clienteTelefono)
         {
+            Id = id;
+            FechaReserva = fechaReserva;
         }
 
-        // Constructor parametrizado (Usado por LINQ .Select() para crear el objeto)
-        public PistaReservaDetailsDTO(int idPista, string nombrePista, int nPersonas, string nombreDeporte, decimal precio)
-        {
-            IdPista = idPista;
-            NombrePista = nombrePista;
-            NPersonas = nPersonas;
-            NombreDeporte = nombreDeporte;
-            Precio = precio;
-        }
+        // DATOS EXCLUSIVOS DEL SERVIDOR (No existen en el POST del cliente)
+        public int Id { get; set; }
+        public DateTime FechaReserva { get; set; }
 
-        public int IdPista { get; set; }
-
-        [StringLength(50, ErrorMessage = "El nombre de la pista no puede exceder los 50 caracteres.")]
-        public string NombrePista { get; set; } = "nombre por defecto";
-
-        [Range(1, 100, ErrorMessage = "El aforo debe estar entre 1 y 100 personas.")]
-        public int NPersonas { get; set; } = 1;
-
-        // Aplanamiento: Evitamos enviar la entidad TipoDeporte entera al cliente
-        [StringLength(50, ErrorMessage = "El nombre del deporte no puede exceder los 50 caracteres.")]
-        public string NombreDeporte { get; set; } = "Deporte";
-
-        [Required]
-        [DataType(System.ComponentModel.DataAnnotations.DataType.Currency)] //Buscar otra posible forma de escribir esto por si acaso
-        [Range(0.01, (double)decimal.MaxValue, ErrorMessage = "El precio debe ser superior a 0.")]
-        public decimal Precio { get; set; } = 1m; //La m viene de monetary, por defecto esto mostrará 1.00 si no se define valor
-
-        // Sobrescritura para facilitar los Asserts en los futuros Tests Unitarios
         public override bool Equals(object? obj)
         {
-            return obj is PistaReservaDetailsDTO dTO &&
-                   IdPista == dTO.IdPista &&
-                   NombrePista == dTO.NombrePista &&
-                   NPersonas == dTO.NPersonas &&
-                   NombreDeporte == dTO.NombreDeporte &&
-                   Precio == dTO.Precio;
+            return obj is ReservaDetailsDTO dTO &&
+                   //Si no uso base.Equals(obj, sufro el riesgo de ver falsos positivos, ya que solo comparamos Id y fecha,
+                   //y no miramos si las pistas o el método de pago son los mismos
+                   base.Equals(obj) &&
+                   Id == dTO.Id &&
+
+                   //Es necesario el uso de .Date porque c# captura milisegundos. Se puede oler que en los milisegundos no seremos iguales,
+                   //por lo que pueden fallar la comparación de la fecha en la base de datos con la de la vida real.
+                   FechaReserva.Date == dTO.FechaReserva.Date;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(IdPista, NombrePista, NPersonas, NombreDeporte, Precio);
+            return HashCode.Combine(base.GetHashCode(), Id, FechaReserva);
         }
-
-    }//De la clase
-}//Del namespace
+    }
+}

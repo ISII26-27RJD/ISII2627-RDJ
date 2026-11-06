@@ -10,13 +10,10 @@ namespace AppForSEII.API.Models
         
         public Alquiler(){}
 
-        public Alquiler(string nombre, string apellido, string DNI, string numero, DateTime fechaA, IList<MaterialAlquilado> materialAlquilados, MetodoPagoTipos metodoPago)
+        public Alquiler(ApplicationUser usuario, DateTime fechaA, IList<MaterialAlquilado> materialAlquilados, MetodoPagoTipos metodoPago)
         {
 
-            NombreUsuario = nombre;
-            ApellidosUsuario = apellido;
-            this.DNI = DNI;
-            NumeroTelefono = numero;
+            Usuario = usuario;
             FechaAlquiler = fechaA;
             MaterialesAlquilados = materialAlquilados;
             MetodoPago = metodoPago;
@@ -30,25 +27,7 @@ namespace AppForSEII.API.Models
         public int IdAlquiler{get; set;}
 
         [Required]
-        [Display(Name = "NombreUsuario")]
-        [StringLength(50, ErrorMessage = "Nombre entre 3 y 50 caracteres",MinimumLength = 3)]
-        public string NombreUsuario{get; set;}
-
-        [Required]
-        [Display(Name = "ApellidosUsuario")]
-        [StringLength(50, ErrorMessage = "Nombre entre 3 y 50 caracteres",MinimumLength = 3)]
-        public string ApellidosUsuario{get; set;}
-
-        [Required]
-        [Display(Name = "DNI")]
-        [StringLength(9, ErrorMessage = "DNI debe tener 9 caracteres",MinimumLength = 9)]
-        [RegularExpression("[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][A-Za-z]")]
-        public string DNI{get; set;}
-
-        [Required]
-        [Phone]
-        [Display(Name = "NumeroTelefono")]
-        public string NumeroTelefono{get; set;}
+        public ApplicationUser Usuario{get; set;}
 
         [Required]
         [Display(Name = "FechaAlquiler")]

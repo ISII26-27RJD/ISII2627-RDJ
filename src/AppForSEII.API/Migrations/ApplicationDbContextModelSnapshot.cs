@@ -30,41 +30,22 @@ namespace AppForSEII.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdAlquiler"));
 
-                    b.Property<string>("ApellidosUsuario")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("DNI")
-                        .IsRequired()
-                        .HasMaxLength(9)
-                        .HasColumnType("nvarchar(9)");
-
                     b.Property<DateTime>("FechaAlquiler")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("FechaFinAlquiler")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("FechaInicioAlquiler")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("MetodoPago")
                         .HasColumnType("int");
 
-                    b.Property<string>("NombreUsuario")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("NumeroTelefono")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<decimal>("PrecioTotal")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("UsuarioId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("IdAlquiler");
+
+                    b.HasIndex("UsuarioId");
 
                     b.ToTable("Alquileres");
                 });
@@ -316,7 +297,6 @@ namespace AppForSEII.API.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("ClienteId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("DNI")
@@ -373,7 +353,7 @@ namespace AppForSEII.API.Migrations
                     b.Property<decimal>("Precio")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int?>("TipoDeporteId")
+                    b.Property<int>("TipoDeporteId")
                         .HasColumnType("int");
 
                     b.Property<int>("TipoMaterialIdTipoMaterial")
@@ -497,14 +477,9 @@ namespace AppForSEII.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Apellidos")
+                    b.Property<string>("ClienteId")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Dni")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("FechaReserva")
                         .HasColumnType("datetime2");
@@ -512,16 +487,13 @@ namespace AppForSEII.API.Migrations
                     b.Property<int>("MetodoPago")
                         .HasColumnType("int");
 
-                    b.Property<string>("NombreCliente")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<decimal>("PrecioTotal")
                         .HasPrecision(5, 2)
                         .HasColumnType("decimal(5,2)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ClienteId");
 
                     b.ToTable("Reservas");
                 });
@@ -704,6 +676,17 @@ namespace AppForSEII.API.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("AppForSEII.API.Models.Alquiler", b =>
+                {
+                    b.HasOne("AppForSEII.API.Models.ApplicationUser", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Usuario");
+                });
+
             modelBuilder.Entity("AppForSEII.API.Models.ClaseDeportiva", b =>
                 {
                     b.HasOne("AppForSEII.API.Models.TipoDeporte", "TipoDeporte")
@@ -768,24 +751,26 @@ namespace AppForSEII.API.Migrations
                 {
                     b.HasOne("AppForSEII.API.Models.ApplicationUser", "Cliente")
                         .WithMany("Inscripciones")
-                        .HasForeignKey("ClienteId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ClienteId");
 
                     b.Navigation("Cliente");
                 });
 
             modelBuilder.Entity("AppForSEII.API.Models.Material", b =>
                 {
-                    b.HasOne("AppForSEII.API.Models.TipoDeporte", null)
+                    b.HasOne("AppForSEII.API.Models.TipoDeporte", "TipoDeporte")
                         .WithMany("Material")
-                        .HasForeignKey("TipoDeporteId");
+                        .HasForeignKey("TipoDeporteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("AppForSEII.API.Models.TipoMaterial", "TipoMaterial")
                         .WithMany("Material")
                         .HasForeignKey("TipoMaterialIdTipoMaterial")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("TipoDeporte");
 
                     b.Navigation("TipoMaterial");
                 });
@@ -837,6 +822,17 @@ namespace AppForSEII.API.Migrations
                     b.Navigation("Pista");
 
                     b.Navigation("Reserva");
+                });
+
+            modelBuilder.Entity("AppForSEII.API.Models.Reserva", b =>
+                {
+                    b.HasOne("AppForSEII.API.Models.ApplicationUser", "Cliente")
+                        .WithMany()
+                        .HasForeignKey("ClienteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cliente");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

@@ -16,17 +16,17 @@ namespace AppForSEII.UT.PistasController_test
     {
         public GetPistasParaReservar_test()
         {
-            // Instancias creadas EXCLUSIVAMENTE con constructores
-            var deporte1 = new TipoDeporte(1, "Pádel", "Deporte de pala");
-            var deporte2 = new TipoDeporte(2, "Tenis", "Deporte de raqueta");
+            // 1. Arrange: Preparación de datos usando constructores sin ID manual (Fidelidad al material)
+            var deporte1 = new TipoDeporte("Pádel", "Deporte de pala", "Similar al tenis");
+            var deporte2 = new TipoDeporte("Tenis", "Deporte de raqueta", "Bueno para principiantes");
             
             var deportes = new List<TipoDeporte>();
             deportes.Add(deporte1);
             deportes.Add(deporte2);
 
-            // En las pistas ponemos sus IDs (1 y 2)
-            var pista1 = new Pista(1, "Pista Central Pádel", 4, 12m, 1, 1);
-            var pista2 = new Pista(2, "Pista Exterior Tenis", 4, 15m, 2, 2);
+            // Pista 1 (Pádel): Stock 1. Pista 2 (Tenis): Stock 2. (IDs generados por EF)
+            var pista1 = new Pista("Pista Central Pádel", 4, 12m, 1, 1);
+            var pista2 = new Pista("Pista Exterior Tenis", 4, 15m, 2, 2);
 
             var pistas = new List<Pista>();
             pistas.Add(pista1);
@@ -35,26 +35,27 @@ namespace AppForSEII.UT.PistasController_test
             var user = new ApplicationUser("1", "Peter", "Jackson", "peter@uclm.es");
             user.DNI = "33333333C";
 
-            // Agotamos stock de la pista de Pádel para el día de HOY
-            var reservaHoy = new Reserva(1, user.Id, DateTime.Today, MetodoPago.Tarjeta, 12m);
+            // Creamos la reserva para HOY sin forzar el ID
+            var reservaHoy = new Reserva(user.Id, DateTime.Today, MetodoPago.Tarjeta, 27m);
             
-            
-            var pistaReservadaHoy = new PistaReservada(1, 12m, "Reserva", 1, reservaHoy.Id);
+            // Agotamos el stock asociando los objetos directamente (EF Core resolverá las FKs)
+            var pistaReservadaHoy = new PistaReservada(1, 12m, "Reserva Pádel", 0, 0); // IDs foráneos a 0, se mapean por el objeto
             pistaReservadaHoy.Pista = pista1;
+            pistaReservadaHoy.Reserva = reservaHoy;
             reservaHoy.PistasReservadas.Add(pistaReservadaHoy);
 
-            // Agotamos TOTALMENTE el stock de la pista de Tenis (Stock = 2 -> Cantidad = 2)
-            var pistaReservadaHoyTenis = new PistaReservada(2, 15m, "Reserva Tenis", 2, reservaHoy.Id);
+            var pistaReservadaHoyTenis = new PistaReservada(2, 15m, "Reserva Tenis", 0, 0);
             pistaReservadaHoyTenis.Pista = pista2;
+            pistaReservadaHoyTenis.Reserva = reservaHoy;
             reservaHoy.PistasReservadas.Add(pistaReservadaHoyTenis);
 
-            // Inyectamos a la BD falsa de SQLite
+            // Guardamos en la BD de pruebas. EF Core asigna los IDs autoincrementales aquí.
             _context.AddRange(deportes);
             _context.AddRange(pistas);
             _context.Users.Add(user);
             _context.Reservas.Add(reservaHoy);
             _context.SaveChanges();
-        }//Constructor
+        }
 
         [Fact]
         [Trait("LevelTesting", "Unit Testing")]
@@ -75,34 +76,32 @@ namespace AppForSEII.UT.PistasController_test
             Assert.Equal("La fecha de reserva no puede ser anterior al día de hoy.", error);
         }
 
-        //Fabrica de datos: Cada object?[] es una ejecución completa del test con parámetros de entrada
         public static IEnumerable<object?[]> TestCasesFor_GetPistas_OK()
         {
-            // Exigencia estricta: Solo usar constructores parametrizados
+            // Los DTOs SÍ requieren el ID explícito en el constructor, tal y como se ve en MovieForRentalDTO
             var pistaPadelDTO = new PistaParaReservarDTO(1, "Pista Central Pádel", 4, "Pádel", 12m);
             var pistaTenisDTO = new PistaParaReservarDTO(2, "Pista Exterior Tenis", 4, "Tenis", 15m);
 
-            // TC1: Hoy, sin filtro de deporte -> Ambas están agotadas, la lista debe estar VACÍA
+            // TC1: Hoy, sin filtro -> Ambas agotadas, lista vacía
             var tc1Expected = new List<PistaParaReservarDTO>();
 
-            // TC2: Mañana, sin filtro -> Salen ambas (mañana no hay reservas), ordenadas por nombre
+            // TC2: Mañana, sin filtro -> Salen ambas
             var tc2Expected = new List<PistaParaReservarDTO>();
             tc2Expected.Add(pistaPadelDTO);
             tc2Expected.Add(pistaTenisDTO);
             tc2Expected = tc2Expected.OrderBy(p => p.NombrePista).ToList();
 
-            // TC3: Mañana, filtrando por "Pádel" -> Sale solo Pádel
+            // TC3: Mañana, filtro "Pádel" -> Sale solo Pádel
             var tc3Expected = new List<PistaParaReservarDTO>();
             tc3Expected.Add(pistaPadelDTO);
 
             var allTests = new List<object?[]>();
-            // Parámetros inyectados: nombreDeporte, fechaReserva, listaEsperada
             allTests.Add(new object?[] { null, DateTime.Today, tc1Expected });
             allTests.Add(new object?[] { null, DateTime.Today.AddDays(1), tc2Expected });
             allTests.Add(new object?[] { "Pádel", DateTime.Today.AddDays(1), tc3Expected });
 
             return allTests;
-        }//De la fábrica de datos
+        }
 
         [Theory]
         [MemberData(nameof(TestCasesFor_GetPistas_OK))]
@@ -120,9 +119,9 @@ namespace AppForSEII.UT.PistasController_test
             var okResult = Assert.IsType<OkObjectResult>(result);
             var actualList = Assert.IsType<List<PistaParaReservarDTO>>(okResult.Value);
             
-            // Regla de penalización: Obligatorio usar Assert.Equal para invocar el override Equals
+            // Verificación exigida usando Equals() implícito
             Assert.Equal(expected, actualList); 
-        }//Del ok
+        }
 
     }//De la clase
 }//De namespace

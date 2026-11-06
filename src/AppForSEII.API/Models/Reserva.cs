@@ -40,10 +40,8 @@ namespace AppForSEII.API.Models
         // CONSTRUCTORES
         public Reserva() { } // Requerido por EF Core
 
-        //CONSTRUCTOR ACTUALIZADO POR PRUEBAS UNITARIAS
-        public Reserva(int id, string clienteId, DateTime fechaReserva, MetodoPago metodoPago, decimal precioTotal)
+        public Reserva(string clienteId, DateTime fechaReserva, MetodoPago metodoPago, decimal precioTotal)
         {
-            Id = id;
             ClienteId = clienteId;
             FechaReserva = fechaReserva;
             MetodoPago = metodoPago;

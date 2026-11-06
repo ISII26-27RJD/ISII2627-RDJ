@@ -16,50 +16,43 @@ namespace AppForSEII.UT.PistasController_test
     {
         public GetPistasParaReservar_test()
         {
-            // =========================================================
-            // CAPA 1: Entidades Independientes (Padres)
-            // =========================================================
-            // CORRECCIÓN: Usamos el constructor exacto (string, string, string)
+            // Arrange: Instanciamos los padres
             var deporte1 = new TipoDeporte("Pádel", "Pádel", "Deporte de pala");
             var deporte2 = new TipoDeporte("Tenis", "Tenis", "Deporte de raqueta");
             
             var user = new ApplicationUser("1", "Peter", "Jackson", "peter@uclm.es");
             user.DNI = "33333333C";
 
-            _context.Add(deporte1);
-            _context.Add(deporte2);
-            _context.Users.Add(user);
-            
-            // Primer guardado: SQLite asigna los IDs reales a los deportes (deporte1.Id, deporte2.Id)
-            _context.SaveChanges(); 
+            // Instanciamos las Pistas y ASIGNAMOS EL OBJETO (para evitar Shadow Properties)
+            // Le pasamos 0 al id numérico porque EF Core usará el objeto enlazado para hacer el cruce.
+            var pista1 = new Pista("Pista Central Pádel", 4, 12m, 1, 0);
+            pista1.TipoDeporte = deporte1; // ENLACE EXPLÍCITO
 
-            // =========================================================
-            // CAPA 2: Entidades Dependientes de Nivel 1 (Hijos)
-            // =========================================================
-            // Usamos deporte1.Id generado por EF Core para la clave foránea
-            var pista1 = new Pista("Pista Central Pádel", 4, 12m, 1, deporte1.Id);
-            var pista2 = new Pista("Pista Exterior Tenis", 4, 15m, 2, deporte2.Id);
+            var pista2 = new Pista("Pista Exterior Tenis", 4, 15m, 2, 0);
+            pista2.TipoDeporte = deporte2; // ENLACE EXPLÍCITO
 
+            // 3. Instanciamos la Reserva y ASIGNAMOS EL OBJETO
             var reservaHoy = new Reserva(user.Id, DateTime.Today, MetodoPago.Tarjeta, 27m);
+            reservaHoy.Cliente = user; // ENLACE EXPLÍCITO
             
-            _context.Add(pista1);
-            _context.Add(pista2);
-            _context.Add(reservaHoy);
-            
-            // Segundo guardado: SQLite asigna IdPista a las pistas e Id a la reserva
-            _context.SaveChanges(); 
+            // 4. Instanciamos PistasReservadas y ASIGNAMOS LOS OBJETOS
+            var pistaReservadaHoy = new PistaReservada(1, 12m, "Reserva Pádel", 0, 0);
+            pistaReservadaHoy.Pista = pista1;       // ENLACE EXPLÍCITO
+            pistaReservadaHoy.Reserva = reservaHoy; // ENLACE EXPLÍCITO
+            reservaHoy.PistasReservadas.Add(pistaReservadaHoy);
 
-            // =========================================================
-            // CAPA 3: Entidades Dependientes de Nivel 2 (Nietos)
-            // =========================================================
-            // Usamos los IDs reales recién generados por la BD
-            var pistaReservadaHoy = new PistaReservada(1, 12m, "Reserva Pádel", pista1.IdPista, reservaHoy.Id);
-            var pistaReservadaHoyTenis = new PistaReservada(2, 15m, "Reserva Tenis", pista2.IdPista, reservaHoy.Id);
+            var pistaReservadaHoyTenis = new PistaReservada(2, 15m, "Reserva Tenis", 0, 0);
+            pistaReservadaHoyTenis.Pista = pista2;       // ENLACE EXPLÍCITO
+            pistaReservadaHoyTenis.Reserva = reservaHoy;// ENLACE EXPLÍCITO
+            reservaHoy.PistasReservadas.Add(pistaReservadaHoyTenis);
 
-            _context.Add(pistaReservadaHoy);
-            _context.Add(pistaReservadaHoyTenis);
+            // 5. Inyectamos a la BD de pruebas y hacemos un ÚNICO SaveChanges.
+            // Al estar los objetos enlazados, EF Core deduce el orden de inserción y rellena las FKs ocultas.
+            _context.AddRange(deporte1, deporte2);
+            _context.AddRange(pista1, pista2);
+            _context.Users.Add(user);
+            _context.Reservas.Add(reservaHoy);
             
-            // Tercer y último guardado: Éxito total sin violar restricciones de Foreign Key
             _context.SaveChanges();
         }
 

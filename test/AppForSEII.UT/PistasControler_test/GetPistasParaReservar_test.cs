@@ -16,44 +16,50 @@ namespace AppForSEII.UT.PistasController_test
     {
         public GetPistasParaReservar_test()
         {
-            // 1. Arrange: Preparación de datos usando constructores sin ID manual (Fidelidad al material)
-            var deporte1 = new TipoDeporte("Pádel", "Deporte de pala", "Similar al tenis");
-            var deporte2 = new TipoDeporte("Tenis", "Deporte de raqueta", "Bueno para principiantes");
+            // =========================================================
+            // CAPA 1: Entidades Independientes (Padres)
+            // =========================================================
+            // CORRECCIÓN: Usamos el constructor exacto (string, string, string)
+            var deporte1 = new TipoDeporte("Pádel", "Pádel", "Deporte de pala");
+            var deporte2 = new TipoDeporte("Tenis", "Tenis", "Deporte de raqueta");
             
-            var deportes = new List<TipoDeporte>();
-            deportes.Add(deporte1);
-            deportes.Add(deporte2);
-
-            // Pista 1 (Pádel): Stock 1. Pista 2 (Tenis): Stock 2. (IDs generados por EF)
-            var pista1 = new Pista("Pista Central Pádel", 4, 12m, 1, 1);
-            var pista2 = new Pista("Pista Exterior Tenis", 4, 15m, 2, 2);
-
-            var pistas = new List<Pista>();
-            pistas.Add(pista1);
-            pistas.Add(pista2);
-
             var user = new ApplicationUser("1", "Peter", "Jackson", "peter@uclm.es");
             user.DNI = "33333333C";
 
-            // Creamos la reserva para HOY sin forzar el ID
+            _context.Add(deporte1);
+            _context.Add(deporte2);
+            _context.Users.Add(user);
+            
+            // Primer guardado: SQLite asigna los IDs reales a los deportes (deporte1.Id, deporte2.Id)
+            _context.SaveChanges(); 
+
+            // =========================================================
+            // CAPA 2: Entidades Dependientes de Nivel 1 (Hijos)
+            // =========================================================
+            // Usamos deporte1.Id generado por EF Core para la clave foránea
+            var pista1 = new Pista("Pista Central Pádel", 4, 12m, 1, deporte1.Id);
+            var pista2 = new Pista("Pista Exterior Tenis", 4, 15m, 2, deporte2.Id);
+
             var reservaHoy = new Reserva(user.Id, DateTime.Today, MetodoPago.Tarjeta, 27m);
             
-            // Agotamos el stock asociando los objetos directamente (EF Core resolverá las FKs)
-            var pistaReservadaHoy = new PistaReservada(1, 12m, "Reserva Pádel", 0, 0); // IDs foráneos a 0, se mapean por el objeto
-            pistaReservadaHoy.Pista = pista1;
-            pistaReservadaHoy.Reserva = reservaHoy;
-            reservaHoy.PistasReservadas.Add(pistaReservadaHoy);
+            _context.Add(pista1);
+            _context.Add(pista2);
+            _context.Add(reservaHoy);
+            
+            // Segundo guardado: SQLite asigna IdPista a las pistas e Id a la reserva
+            _context.SaveChanges(); 
 
-            var pistaReservadaHoyTenis = new PistaReservada(2, 15m, "Reserva Tenis", 0, 0);
-            pistaReservadaHoyTenis.Pista = pista2;
-            pistaReservadaHoyTenis.Reserva = reservaHoy;
-            reservaHoy.PistasReservadas.Add(pistaReservadaHoyTenis);
+            // =========================================================
+            // CAPA 3: Entidades Dependientes de Nivel 2 (Nietos)
+            // =========================================================
+            // Usamos los IDs reales recién generados por la BD
+            var pistaReservadaHoy = new PistaReservada(1, 12m, "Reserva Pádel", pista1.IdPista, reservaHoy.Id);
+            var pistaReservadaHoyTenis = new PistaReservada(2, 15m, "Reserva Tenis", pista2.IdPista, reservaHoy.Id);
 
-            // Guardamos en la BD de pruebas. EF Core asigna los IDs autoincrementales aquí.
-            _context.AddRange(deportes);
-            _context.AddRange(pistas);
-            _context.Users.Add(user);
-            _context.Reservas.Add(reservaHoy);
+            _context.Add(pistaReservadaHoy);
+            _context.Add(pistaReservadaHoyTenis);
+            
+            // Tercer y último guardado: Éxito total sin violar restricciones de Foreign Key
             _context.SaveChanges();
         }
 
@@ -74,8 +80,9 @@ namespace AppForSEII.UT.PistasController_test
             var problemDetails = Assert.IsType<ValidationProblemDetails>(badRequestResult.Value);
             var error = problemDetails.Errors.First().Value[0];
             Assert.Equal("La fecha de reserva no puede ser anterior al día de hoy.", error);
-        }
+        }//del bad request
 
+        //Fabrica de datos: Cada object?[] es una ejecución completa del test con parámetros de entrada
         public static IEnumerable<object?[]> TestCasesFor_GetPistas_OK()
         {
             // Los DTOs SÍ requieren el ID explícito en el constructor, tal y como se ve en MovieForRentalDTO
@@ -95,13 +102,14 @@ namespace AppForSEII.UT.PistasController_test
             var tc3Expected = new List<PistaParaReservarDTO>();
             tc3Expected.Add(pistaPadelDTO);
 
+            // Parámetros inyectados: nombreDeporte, fechaReserva, listaEsperada
             var allTests = new List<object?[]>();
             allTests.Add(new object?[] { null, DateTime.Today, tc1Expected });
             allTests.Add(new object?[] { null, DateTime.Today.AddDays(1), tc2Expected });
             allTests.Add(new object?[] { "Pádel", DateTime.Today.AddDays(1), tc3Expected });
 
             return allTests;
-        }
+        }//De la fabrica de datos
 
         [Theory]
         [MemberData(nameof(TestCasesFor_GetPistas_OK))]
@@ -121,7 +129,7 @@ namespace AppForSEII.UT.PistasController_test
             
             // Verificación exigida usando Equals() implícito
             Assert.Equal(expected, actualList); 
-        }
+        }//Del ok
 
     }//De la clase
 }//De namespace

@@ -75,6 +75,53 @@ namespace AppForSEII.UT.PistasController_test
             Assert.Equal("La fecha de reserva no puede ser anterior al día de hoy.", error);
         }
 
-        
+        //Fabrica de datos: Cada object?[] es una ejecución completa del test con parámetros de entrada
+        public static IEnumerable<object?[]> TestCasesFor_GetPistas_OK()
+        {
+            // Exigencia estricta: Solo usar constructores parametrizados
+            var pistaPadelDTO = new PistaParaReservarDTO(1, "Pista Central Pádel", 4, "Pádel", 12m);
+            var pistaTenisDTO = new PistaParaReservarDTO(2, "Pista Exterior Tenis", 4, "Tenis", 15m);
+
+            // TC1: Hoy, sin filtro de deporte -> Ambas están agotadas, la lista debe estar VACÍA
+            var tc1Expected = new List<PistaParaReservarDTO>();
+
+            // TC2: Mañana, sin filtro -> Salen ambas (mañana no hay reservas), ordenadas por nombre
+            var tc2Expected = new List<PistaParaReservarDTO>();
+            tc2Expected.Add(pistaPadelDTO);
+            tc2Expected.Add(pistaTenisDTO);
+            tc2Expected = tc2Expected.OrderBy(p => p.NombrePista).ToList();
+
+            // TC3: Mañana, filtrando por "Pádel" -> Sale solo Pádel
+            var tc3Expected = new List<PistaParaReservarDTO>();
+            tc3Expected.Add(pistaPadelDTO);
+
+            var allTests = new List<object?[]>();
+            // Parámetros inyectados: nombreDeporte, fechaReserva, listaEsperada
+            allTests.Add(new object?[] { null, DateTime.Today, tc1Expected });
+            allTests.Add(new object?[] { null, DateTime.Today.AddDays(1), tc2Expected });
+            allTests.Add(new object?[] { "Pádel", DateTime.Today.AddDays(1), tc3Expected });
+
+            return allTests;
+        }
+
+        [Theory]
+        [MemberData(nameof(TestCasesFor_GetPistas_OK))]
+        [Trait("LevelTesting", "Unit Testing")]
+        public async Task GetPistasParaReservar_OK_test(string? deporte, DateTime? fecha, List<PistaParaReservarDTO> expected)
+        {
+            // Arrange
+            var mock = new Mock<ILogger<PistasController>>();
+            var controller = new PistasController(_context, mock.Object);
+
+            // Act
+            var result = await controller.GetPistasParaReservar(deporte, fecha);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var actualList = Assert.IsType<List<PistaParaReservarDTO>>(okResult.Value);
+            
+            // Regla de penalización: Obligatorio usar Assert.Equal para invocar el override Equals
+            Assert.Equal(expected, actualList); 
+        }
     }//De la clase
 }//De namespace

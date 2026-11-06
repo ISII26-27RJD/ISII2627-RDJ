@@ -1,8 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
-
-using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore;
 using System;
 
 namespace AppForSEII.API.Models
@@ -43,9 +40,10 @@ namespace AppForSEII.API.Models
         // CONSTRUCTORES
         public Reserva() { } // Requerido por EF Core
 
-        // Constructor actualizado
-        public Reserva(string clienteId, DateTime fechaReserva, MetodoPago metodoPago, decimal precioTotal)
+        //CONSTRUCTOR ACTUALIZADO POR PRUEBAS UNITARIAS
+        public Reserva(int id, string clienteId, DateTime fechaReserva, MetodoPago metodoPago, decimal precioTotal)
         {
+            Id = id;
             ClienteId = clienteId;
             FechaReserva = fechaReserva;
             MetodoPago = metodoPago;

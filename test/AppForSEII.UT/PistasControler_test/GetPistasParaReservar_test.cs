@@ -31,11 +31,11 @@ namespace AppForSEII.UT.PistasController_test
             var pista2 = new Pista("Pista Exterior Tenis", 4, 15m, 2, 0);
             pista2.TipoDeporte = deporte2; // ENLACE EXPLÍCITO
 
-            // 3. Instanciamos la Reserva y ASIGNAMOS EL OBJETO
+            // Instanciamos la Reserva y ASIGNAMOS EL OBJETO
             var reservaHoy = new Reserva(user.Id, DateTime.Today, MetodoPago.Tarjeta, 27m);
             reservaHoy.Cliente = user; // ENLACE EXPLÍCITO
             
-            // 4. Instanciamos PistasReservadas y ASIGNAMOS LOS OBJETOS
+            // Instanciamos PistasReservadas y ASIGNAMOS LOS OBJETOS
             var pistaReservadaHoy = new PistaReservada(1, 12m, "Reserva Pádel", 0, 0);
             pistaReservadaHoy.Pista = pista1;       // ENLACE EXPLÍCITO
             pistaReservadaHoy.Reserva = reservaHoy; // ENLACE EXPLÍCITO
@@ -46,7 +46,7 @@ namespace AppForSEII.UT.PistasController_test
             pistaReservadaHoyTenis.Reserva = reservaHoy;// ENLACE EXPLÍCITO
             reservaHoy.PistasReservadas.Add(pistaReservadaHoyTenis);
 
-            // 5. Inyectamos a la BD de pruebas y hacemos un ÚNICO SaveChanges.
+            // Inyectamos a la BD de pruebas y hacemos un ÚNICO SaveChanges.
             // Al estar los objetos enlazados, EF Core deduce el orden de inserción y rellena las FKs ocultas.
             _context.AddRange(deporte1, deporte2);
             _context.AddRange(pista1, pista2);

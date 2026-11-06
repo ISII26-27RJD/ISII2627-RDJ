@@ -97,7 +97,7 @@ namespace AppForSEII.API.Controllers
                     "****-****-****-****", //Esto es un parche visual para los detalles del pago.
                     // Transformamos las PistasReservadas de la BD en DTOs usando LINQ
                     r.PistasReservadas.Select(pr => new PistaReservadaForCreateItemDTO(
-                        pr.IdPista, 
+                        pr.Pista.IdPista,
                         pr.Observaciones, 
                         pr.Pista.NombrePista, 
                         pr.Pista.TipoDeporte.Nombre, 
@@ -107,7 +107,7 @@ namespace AppForSEII.API.Controllers
                     r.Cliente.DNI, 
                     r.Cliente.Name, 
                     r.Cliente.Surname, 
-                    r.Cliente.Email, 
+                    r.Cliente.Email ?? string.Empty,
                     r.Cliente.PhoneNumber ?? string.Empty
                 ))
                 .FirstOrDefaultAsync();

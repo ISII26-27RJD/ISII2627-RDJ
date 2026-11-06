@@ -14,7 +14,7 @@ namespace AppForSEII.API.DTOs.PistasDTOs
 
         public ReservaForCreateDTO(MetodoPago metodoPago, string datosPago, IList<PistaReservadaForCreateItemDTO> pistasReservadas, 
                                    string clienteDNI = "", string clienteNombre = "", string clienteApellidos = "", 
-                                   string clienteEmail = "", string clienteTelefono = "")
+                                   string clienteEmail = "", string clienteTelefono = "", DateTime? fechaReserva = null)
         {
             PaymentMethod = metodoPago; //No pongo MetodoPago porque el modelo tiene ese mismo nombre
             DatosPago = datosPago ?? throw new ArgumentNullException(nameof(datosPago));
@@ -25,6 +25,7 @@ namespace AppForSEII.API.DTOs.PistasDTOs
             ClienteApellidos = clienteApellidos;
             ClienteEmail = clienteEmail;
             ClienteTelefono = clienteTelefono;
+            FechaReserva = fechaReserva; //Modificacion para pruebas unitarias de details
         }
 
         //DATOS DE ENTRADA
@@ -67,8 +68,33 @@ namespace AppForSEII.API.DTOs.PistasDTOs
 
         public override bool Equals(object? obj)
         {
-            return obj is ReservaForCreateDTO dTO &&
-                   PaymentMethod == dTO.PaymentMethod &&
+            // Si el objeto no es del tipo correcto, devolvemos falso
+            if (!(obj is ReservaForCreateDTO dTO))
+            {
+                return false;
+            }
+
+            // Lógica para comparar la fecha opcional
+            bool coincidenLasFechas = false;
+
+            if (this.FechaReserva == null && dTO.FechaReserva == null)
+            {
+                // Si ambas son nulas, son iguales
+                coincidenLasFechas = true;
+            }
+            else if (this.FechaReserva != null && dTO.FechaReserva != null)
+            {
+                // Si ambas tienen valor, ignoramos milisegundos y comparamos día
+                coincidenLasFechas = this.FechaReserva.Value.Date == dTO.FechaReserva.Value.Date;
+            }
+            else
+            {
+                // Si una es nula y la otra no, obviamente no son iguales
+                coincidenLasFechas = false;
+            }
+
+            // Comparamos el resto de propiedades de forma limpia
+            return PaymentMethod == dTO.PaymentMethod &&
                    DatosPago == dTO.DatosPago &&
                    ClienteDNI == dTO.ClienteDNI &&
                    ClienteNombre == dTO.ClienteNombre &&
@@ -76,8 +102,9 @@ namespace AppForSEII.API.DTOs.PistasDTOs
                    ClienteEmail == dTO.ClienteEmail &&
                    ClienteTelefono == dTO.ClienteTelefono &&
                    PrecioTotal == dTO.PrecioTotal &&
+                   coincidenLasFechas && // <-- Usamos nuestra variable calculada
                    PistasReservadas.SequenceEqual(dTO.PistasReservadas);
-        }
+        }//Del equals
 
         public override int GetHashCode()
         {

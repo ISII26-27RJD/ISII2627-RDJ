@@ -102,7 +102,7 @@ namespace AppForSEII.UT.PistasController_test
             allTests.Add(new object?[] { "Pádel", DateTime.Today.AddDays(1), tc3Expected });
 
             return allTests;
-        }
+        }//De la fábrica de datos
 
         [Theory]
         [MemberData(nameof(TestCasesFor_GetPistas_OK))]
@@ -122,6 +122,7 @@ namespace AppForSEII.UT.PistasController_test
             
             // Regla de penalización: Obligatorio usar Assert.Equal para invocar el override Equals
             Assert.Equal(expected, actualList); 
-        }
+        }//Del ok
+
     }//De la clase
 }//De namespace

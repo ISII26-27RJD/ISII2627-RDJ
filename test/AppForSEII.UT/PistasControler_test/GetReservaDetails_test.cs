@@ -44,6 +44,21 @@ namespace AppForSEII.UT.PistasController_test
             _context.Users.Add(user);
             _context.Add(reserva);
             _context.SaveChanges();
+        }//Del constructor
+
+        [Fact]
+        [Trait("LevelTesting", "Unit Testing")]
+        public async Task GetReservaDetails_NotFound_test()
+        {
+            // Arrange
+            var mock = new Mock<ILogger<PistasController>>();
+            var controller = new PistasController(_context, mock.Object);
+
+            // Act: Buscamos un ID que no existe (0)
+            var result = await controller.GetReservaDetails(0);
+
+            // Assert: Verificamos que devuelve el código 404 (NotFound)
+            Assert.IsType<NotFoundResult>(result);
         }
     }//De la clase
 }//Del namespace

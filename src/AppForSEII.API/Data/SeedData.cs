@@ -333,6 +333,7 @@ namespace AppForSEII.API.Data
                         Cantidad = 1,
                         Precio = pistaPadel.Precio,
                         Observaciones = "Llevar palas de alquiler",
+                        IdPista = pistaPadel.IdPista, //Para evitar que salga id = 0
                         Pista = pistaPadel,
                         Reserva = reserva
                     };
@@ -341,6 +342,7 @@ namespace AppForSEII.API.Data
                         Cantidad = 1,
                         Precio = pistaTenis.Precio,
                         Observaciones = "Sin observaciones",
+                        IdPista = pistaTenis.IdPista, //Mismo comentario que en pista de padel
                         Pista = pistaTenis,
                         Reserva = reserva
                     };

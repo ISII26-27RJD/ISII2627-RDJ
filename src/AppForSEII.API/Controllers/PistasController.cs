@@ -157,10 +157,13 @@ namespace AppForSEII.API.Controllers
                 return Unauthorized("Usuario no autenticado.");
             }
 
+            // Calculamos la fecha objetivo (Si viene vacía, usamos Hoy)
+            DateTime fechaObjetivo = reservaForCreate.FechaReserva ?? DateTime.Today;
+
             // Crear la entidad principal (Reserva)
             var nuevaReserva = new Reserva(
                 clienteId: currentUser.Id,
-                fechaReserva: DateTime.Today, 
+                fechaReserva: fechaObjetivo, 
                 metodoPago: reservaForCreate.PaymentMethod,
                 precioTotal: 0m 
             );
@@ -181,13 +184,14 @@ namespace AppForSEII.API.Controllers
                     return BadRequest(new ValidationProblemDetails(ModelState));
                 }
 
-                var ocupadasHoy = await _context.PistasReservadas
-                    .Where(pr => pr.IdPista == pistaReal.IdPista && pr.Reserva.FechaReserva.Date == DateTime.Today)
+                // 2. Comprobamos el stock PARA LA FECHA OBJETIVO, no para DateTime.Today
+                var ocupadasEseDia = await _context.PistasReservadas
+                    .Where(pr => pr.IdPista == pistaReal.IdPista && pr.Reserva.FechaReserva.Date == fechaObjetivo.Date)
                     .SumAsync(pr => pr.Cantidad);
 
-                if (ocupadasHoy + 1 > pistaReal.Stock)
+                if (ocupadasEseDia + 1 > pistaReal.Stock)
                 {
-                    ModelState.AddModelError("SinStock", $"La pista '{pistaReal.NombrePista}' ya está agotada para hoy.");
+                    ModelState.AddModelError("SinStock", $"La pista '{pistaReal.NombrePista}' ya está agotada para el día {fechaObjetivo.ToShortDateString()}.");
                     return BadRequest(new ValidationProblemDetails(ModelState));
                 }
 

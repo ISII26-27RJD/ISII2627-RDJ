@@ -36,6 +36,9 @@ namespace AppForSEII.API.DTOs.PistasDTOs
         [Required(AllowEmptyStrings = false, ErrorMessage = "Los datos del pago son obligatorios.")]
         [StringLength(100, ErrorMessage = "Los datos de pago no pueden exceder los 100 caracteres.")]
         public string DatosPago { get; set; } = string.Empty;
+        
+        // Propiedad opcional para elegir cuándo se quiere la pista
+        public DateTime? FechaReserva { get; set; }
 
         [Required(ErrorMessage = "Debe incluir al menos una pista en la reserva.")]
         [MinLength(1, ErrorMessage = "La reserva debe contener al menos una pista.")]

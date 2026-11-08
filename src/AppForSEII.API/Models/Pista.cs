@@ -43,6 +43,7 @@ namespace AppForSEII.API.Models
         // CONSTRUCTORES
         public Pista() { } // Requerido por EF Core
 
+        //CONSTRUCTOR ACTUALIZADO POR PRUEBAS UNITARIAS
         public Pista(string nombrePista, int nPersonas, decimal precio, int stock, int idTipoDeporte)
         {
             NombrePista = nombrePista;

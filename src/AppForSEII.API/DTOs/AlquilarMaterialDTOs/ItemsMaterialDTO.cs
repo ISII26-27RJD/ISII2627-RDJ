@@ -1,14 +1,13 @@
-
 namespace AppForSEII.API.DTOs.AlquilarMaterialDTOs
 {
     
     public class ItemsMaterialDTO
     {
         
-        public ItemsMaterialDTO(int ID, string nombre, decimal precio, int cantidad, string tipoMaterial, string tipoDeporte)
+        public ItemsMaterialDTO(int MaterialID, string nombre, decimal precio, int cantidad, string tipoMaterial, string tipoDeporte)
         {
             
-            MaterialID = ID;
+            this.MaterialID = MaterialID;
             Nombre = nombre;
             Precio = precio;
             Cantidad = cantidad;

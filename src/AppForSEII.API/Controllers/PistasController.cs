@@ -77,47 +77,184 @@ namespace AppForSEII.API.Controllers
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        //GET delos detalles de las pistas
+        //GET de los detalles de las pistas
         [HttpGet]
-        [Route("[action]/{id}")] //nombre del método
-        [ProducesResponseType(typeof(PistaReservaDetailsDTO), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult> GetPistaDetails(int id)
+        [Route("[action]")]
+        [ProducesResponseType(typeof(ReservaDetailsDTO), (int)System.Net.HttpStatusCode.OK)]
+        [ProducesResponseType((int)System.Net.HttpStatusCode.NotFound)]
+        public async Task<ActionResult> GetReservaDetails(int id)
         {
-            //Consulta de stock
-            var pistaDetails = await _context.Pistas
-                
-                // Cargamos la relación para poder aplanar el nombre del deporte
-                .Include(p => p.TipoDeporte)
-                
-                // Filtramos por la Clave Primaria que viene en la URL
-                .Where(p => p.IdPista == id)
-                
-                // Proyección al DTO
-                .Select(p => new PistaReservaDetailsDTO(
-                    p.IdPista,
-                    p.NombrePista,
-                    p.NPersonas,
-                    p.TipoDeporte.Nombre,
-                    p.Precio
+            var reserva = await _context.Reservas
+                .Include(r => r.Cliente) // Unimos con el usuario para sacar su DNI, Nombre, etc.
+                .Include(r => r.PistasReservadas) // Unimos con la tabla intermedia
+                    .ThenInclude(pr => pr.Pista) // Unimos con la pista física
+                        .ThenInclude(p => p.TipoDeporte) // Unimos con el deporte para el nombre
+                .Where(r => r.Id == id)
+                .Select(r => new ReservaDetailsDTO(
+                    r.Id, 
+                    r.FechaReserva, 
+                    r.MetodoPago, 
+                    "****-****-****-****", //Esto es un parche visual para los detalles del pago.
+                    // Transformamos las PistasReservadas de la BD en DTOs usando LINQ
+                    r.PistasReservadas.Select(pr => new PistaReservadaForCreateItemDTO(
+                        pr.Pista.IdPista,
+                        pr.Observaciones, 
+                        pr.Pista.NombrePista, 
+                        pr.Pista.TipoDeporte.Nombre, 
+                        pr.Pista.NPersonas, 
+                        pr.Precio
+                    )).ToList(),
+                    r.Cliente.DNI, 
+                    r.Cliente.Name, 
+                    r.Cliente.Surname, 
+                    r.Cliente.Email ?? string.Empty,
+                    r.Cliente.PhoneNumber ?? string.Empty
                 ))
-                
-                // Ejecuta la consulta y devuelve el primer resultado, o null si no existe
                 .FirstOrDefaultAsync();
 
-            //¿Que pasa si la pista fuera null, es decir, que no existe, al menos en la base de datos?
-            if (pistaDetails == null)
+            if (reserva == null)
             {
-                // Dejamos registro en el servidor de que alguien o algo buscó una pista inválida
-                _logger.LogError($"{DateTime.Now} Error: Intento de acceder a detalles de una pista inexistente (ID: {id}).");
-                
-                // Cumplimos con REST devolviendo el código correcto para "Recurso no encontrado"
                 return NotFound();
             }
 
-            return Ok(pistaDetails);
+            return Ok(reserva);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        
+        [HttpPost]
+        [Route("[action]")]
+        // De momento no sé como devolver un DTO especifico, así que para la gracias de las pruebas, solo decimos que devolvemos un 201 Created
+        // Ojo, pienso que esto no será algo definitivo, por lo que la respuesta que mande será distinta.
+        // Actualizamos el ProducesResponseType para que prometa devolver el ticket detallado
+        [ProducesResponseType(typeof(ReservaDetailsDTO), (int)System.Net.HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), (int)System.Net.HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)System.Net.HttpStatusCode.Conflict)]
+        public async Task<ActionResult> CreatePistaReserva(ReservaForCreateDTO reservaForCreate)
+        {
+            //Namespace de DTOS para POST corregidos
+
+            //Necesitamos pasar ciertos filtros antes de tocar nada
+            if (_context.Reservas == null) //¿¿La tabla de reservas ha sido insertada en la basede datos???
+            {
+                return Problem("Entity set 'ApplicationDbContext.Reservas' is null.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                //¿Que es modelstate? Un diccionario interno de ASP.NET Core. Cuando JSON del frontend llega al servidor, framework intenta encajarlo con el DTO de post.
+                // Leemos en el proceso todas las reglas ya establecidas (required, minlength, etc). Si alguna regla no se cumple, entonces la bandera se pone en falso
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+
+            // Simulación de usuario autenticado.
+            // Buscamos a Peter para simular que es él quien hace la petición POST
+            var currentUser = await _context.Users.OfType<ApplicationUser>()
+                .FirstOrDefaultAsync(u => u.UserName == "peter@uclm.es");
+
+            if (currentUser == null)
+            {
+                return Unauthorized("Usuario no autenticado.");
+            }
+
+            // Calculamos la fecha objetivo (Si viene vacía, usamos Hoy)
+            DateTime fechaObjetivo = reservaForCreate.FechaReserva ?? DateTime.Today;
+
+            // Crear la entidad principal (Reserva)
+            var nuevaReserva = new Reserva(
+                clienteId: currentUser.Id,
+                fechaReserva: fechaObjetivo, 
+                metodoPago: reservaForCreate.PaymentMethod,
+                precioTotal: 0m 
+            );
+
+            decimal precioTotalCalculado = 0;
+
+            // Vamos a procesar el carro de la compra
+            foreach (var itemDTO in reservaForCreate.PistasReservadas)
+            {
+                // Añadimos el Include para poder sacar NombrePista y TipoDeporte
+                var pistaReal = await _context.Pistas
+                    .Include(p => p.TipoDeporte)
+                    .FirstOrDefaultAsync(p => p.IdPista == itemDTO.IdPista);
+                
+                if (pistaReal == null)
+                {
+                    ModelState.AddModelError("PistaNoEncontrada", $"La pista con ID {itemDTO.IdPista} no existe.");
+                    return BadRequest(new ValidationProblemDetails(ModelState));
+                }
+
+                // 2. Comprobamos el stock PARA LA FECHA OBJETIVO, no para DateTime.Today
+                var ocupadasEseDia = await _context.PistasReservadas
+                    .Where(pr => pr.IdPista == pistaReal.IdPista && pr.Reserva.FechaReserva.Date == fechaObjetivo.Date)
+                    .SumAsync(pr => pr.Cantidad);
+
+                if (ocupadasEseDia + 1 > pistaReal.Stock)
+                {
+                    ModelState.AddModelError("SinStock", $"La pista '{pistaReal.NombrePista}' ya está agotada para el día {fechaObjetivo.ToShortDateString()}.");
+                    return BadRequest(new ValidationProblemDetails(ModelState));
+                }
+
+                var pistaReservada = new PistaReservada
+                {
+                    Cantidad = 1,
+                    Precio = pistaReal.Precio,
+                    Observaciones = itemDTO.Observaciones,
+                    IdPista = pistaReal.IdPista,
+                    //EF Core usa estos objetos para rellenar las claves foráneas fantasma (PistaIdPista) en SQL Server.
+                    Pista = pistaReal,
+                    Reserva = nuevaReserva
+                    //NO paso id para la reserva, porque EF Core solucionará por si sola clave foranea.
+                };
+
+                nuevaReserva.PistasReservadas.Add(pistaReservada);
+                precioTotalCalculado += pistaReal.Precio;
+                
+                // Respecto a DETAILS: Rellenamos el DTO de entrada con los datos reales de la BD
+                // para que luego el ticket se imprima con el desglose pedido
+                itemDTO.NombrePista = pistaReal.NombrePista;
+                itemDTO.TipoDeporte = pistaReal.TipoDeporte.Nombre;
+                itemDTO.NPersonas = pistaReal.NPersonas;
+                itemDTO.Precio = pistaReal.Precio;
+            }//Del for-each
+
+            // Asignar el precio final a prueba de manipulaciones
+            nuevaReserva.PrecioTotal = precioTotalCalculado;
+
+            // Guardar en base de datos
+            _context.Reservas.Add(nuevaReserva);
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Extraemos el error real de SQL Server que está oculto en el InnerException
+                var errorReal = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                ModelState.AddModelError("Reserva", $"Error! Hubo un problema al guardar su reserva.");
+                return Conflict("Error SQL: " + errorReal);
+            }
+
+            // 7. Preparar DTO de Detalles (El Ticket de Compra)
+            var reservaDetails = new ReservaDetailsDTO(
+                id: nuevaReserva.Id,
+                fechaReserva: nuevaReserva.FechaReserva,
+                metodoPago: reservaForCreate.PaymentMethod,
+                datosPago: "****-****-****-****", // <- Ocultamos el dato al devolver el recibo
+                pistasReservadas: reservaForCreate.PistasReservadas,
+                clienteDNI: currentUser.DNI, 
+                clienteNombre: currentUser.Name,
+                clienteApellidos: currentUser.Surname,
+                clienteEmail: currentUser.Email,
+                clienteTelefono: currentUser.PhoneNumber ?? string.Empty
+            );
+
+            // Retornar 201 CreatedAtAction
+            // Como aún no tenemos un método GET para reservas, puedes usar string.Empty o 
+            // inventar el nombre del futuro método "GetReservaDetails"
+            return CreatedAtAction("GetReservaDetails", new { id = nuevaReserva.Id }, reservaDetails);
             
-        }//Del método de details
+        }//Del método POST
 
     }//De la clase controlador
 

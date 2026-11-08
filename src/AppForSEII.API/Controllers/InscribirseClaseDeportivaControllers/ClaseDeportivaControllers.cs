@@ -12,28 +12,27 @@ using System.Threading.Tasks;
 namespace AppForSEII.API.Controllers
 {
     // Controlador para el caso de uso "Inscribirse a Clase Deportiva".
-    // Gestiona tres operaciones: listar clases disponibles (GET catalogo),
-    // ver el detalle de una inscripcion (GET detail) y crear una inscripcion (POST).
+    // Gestiona tres operaciones: SELECT (catalogo), GET DETAIL (detalle) y POST (crear inscripcion).
     [Route("api/[controller]")]
     [ApiController]
     public class GETClaseDeportivaParaInscribirse : ControllerBase
     {
-        // Acceso a la base de datos a traves del contexto de Entity Framework.
+        // Acceso a la base de datos mediante el contexto de Entity Framework.
         private readonly ApplicationDbContext _context;
-        // Logger para registrar errores y trazas de la aplicacion.
+        // Logger para registrar errores y trazas.
         private readonly ILogger<GETClaseDeportivaParaInscribirse> _logger;
 
-        // Inyeccion de dependencias: EF Core y el logger se inyectan automaticamente desde Program.cs.
+        // Constructor: EF Core y el logger se inyectan automaticamente desde Program.cs.
         public GETClaseDeportivaParaInscribirse(ApplicationDbContext context, ILogger<GETClaseDeportivaParaInscribirse> logger)
         {
             _context = context;
             _logger = logger;
         }
 
-        // GET:
+        // =============================================================
+        // SELECT  -  GET catalogo de clases deportivas disponibles
+        // =============================================================
 
-
-        
         // Devuelve el catalogo de clases deportivas disponibles (con plazas > 0), con filtros opcionales.
         [HttpGet]
         [Route("[action]")]
@@ -84,10 +83,10 @@ namespace AppForSEII.API.Controllers
             return Ok(selectClasses);
         }
 
-        // GET: 
+        // =============================================================
+        // GET DETAIL  -  Detalle de una inscripcion existente
+        // =============================================================
 
-
-        
         // Devuelve el detalle completo de una inscripcion concreta, incluyendo sus clases inscritas.
         [HttpGet]
         [Route("[action]")]
@@ -135,9 +134,9 @@ namespace AppForSEII.API.Controllers
             return Ok(inscription);
         }
 
-        // POST: 
-
-
+        // =============================================================
+        // POST  -  Crear una nueva inscripcion a clase(s) deportiva(s)
+        // =============================================================
 
         // Crea una nueva inscripcion a una o varias clases deportivas.
         [HttpPost]
@@ -197,7 +196,7 @@ namespace AppForSEII.API.Controllers
             {
                 var sportClass = classes.FirstOrDefault(c => c.Id == item.ClaseDeportivaId);
 
-                // Si la clase no existe en BD o no tiene suficientes plazas, se añade un error de validacion.
+                // Si la clase no existe en BD o no tiene suficientes plazas, se agrega un error de validacion.
                 if (sportClass == null || sportClass.PlazasDisponibles < item.PlazasReservadas)
                 {
                     ModelState.AddModelError("ClasesInscritas", $"Error! La clase deportiva '{item.ClaseDeportivaId}' no esta disponible para inscribirse");

@@ -9,8 +9,8 @@ namespace AppForSEII.Shared.ClassDTOs
         public ClaseDeportivaParaInscribirseDTO(int id, string descripcion, string tipoDeporte, string monitor, string nivel, DateTime fechaHora, string? lugar, int plazasDisponibles, decimal precioUnitario)
         {
             Id = id;
-            Descripcion = descripcion;
-            TipoDeporte = tipoDeporte;
+            Descripcion = descripcion; 
+            TipoDeporte = tipoDeporte; 
             Monitor = monitor;
             Nivel = nivel;
             FechaHora = fechaHora;

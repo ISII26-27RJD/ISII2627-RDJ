@@ -234,6 +234,12 @@ namespace AppForSEII.UT.Controllers_test
         // Cada caso define: DTO de entrada con datos erroneos + mensaje de error esperado.
         public static IEnumerable<object[]> TestCasesFor_CreateInscripcion()
         {
+
+        
+        //ClaseDeportivaInscripcionForCreateDTO(string nombreUsuario, string apellidosUsuario, string dni, string telefono, string datosPago, MetodoPagoTypes metodoPago, IList<ClassInscriptionCreateItemDTO> clasesInscritas)
+        //new ClassInscriptionCreateItemDTO(int claseDeportivaId, int plazasReservadas, string? observaciones)
+
+
             // Caso 1: lista de clases vacia -> debe rechazarse.
             var inscripcionSinItems = new ClaseDeportivaInscripcionForCreateDTO
             {

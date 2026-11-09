@@ -68,6 +68,7 @@ namespace AppForSEII.UT.GetInscribirCompeticionController_test
             };
         }
 
+// Caso de error: se pide una inscripción cuyo Id no existe
         [Fact]
         [Trait("LevelTesting", "Unit Testing")]
         public async Task GetCompeticionInscripcion_NotFound_test()
@@ -77,12 +78,14 @@ namespace AppForSEII.UT.GetInscribirCompeticionController_test
             var controller = new GetInscribirCompeticion(_context, mock.Object);
 
             // Act
+// Id 999, que no existe en la BD.
             var result = await controller.GetCompeticionInscripcion(999);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
         }
 
+// Caso correcto: la inscripción existe
         [Fact]
         [Trait("LevelTesting", "Unit Testing")]
         public async Task GetCompeticionInscripcion_Found_test()
@@ -143,6 +146,7 @@ namespace AppForSEII.UT.GetInscribirCompeticionController_test
             Assert.Equal(inscripcion.Id, detalleActual.Id);
         }
 
+//caso error: el DTO llega sin ninguna competición
         [Fact]
         [Trait("LevelTesting", "Unit Testing")]
         public async Task CreateCompeticionInscripcion_EmptyList_Error_test()
@@ -170,6 +174,7 @@ namespace AppForSEII.UT.GetInscribirCompeticionController_test
             Assert.True(problemDetails.Errors.ContainsKey("CompeticionesInscritas"));
         }
 
+//caso de error: se pide una inscripción a una competición que no existe
         [Fact]
         [Trait("LevelTesting", "Unit Testing")]
         public async Task CreateCompeticionInscripcion_CompeticionNotFound_Error_test()
@@ -204,6 +209,7 @@ namespace AppForSEII.UT.GetInscribirCompeticionController_test
             Assert.True(problemDetails.Errors.ContainsKey("CompeticionesInscritas"));
         }
 
+//caso de error: no hay plazas disponibles
         [Fact]
         [Trait("LevelTesting", "Unit Testing")]
         public async Task CreateCompeticionInscripcion_NoPlazas_Error_test()
@@ -247,6 +253,7 @@ namespace AppForSEII.UT.GetInscribirCompeticionController_test
             Assert.True(problemDetails.Errors.ContainsKey("CompeticionesInscritas"));
         }
 
+//caso correcto: la inscripción se crea correctamente
         [Fact]
         [Trait("LevelTesting", "Unit Testing")]
         public async Task CreateCompeticionInscripcion_Success_test()
@@ -309,7 +316,7 @@ namespace AppForSEII.UT.GetInscribirCompeticionController_test
             Assert.Single(detalleActual.CompeticionesInscritas);
         }
 
-        
+// Caso de error: se intenta crear una inscripción sin competiciones
         [Fact]
         [Trait("LevelTesting", "Unit Testing")]
         public async Task CreateCompeticionInscripcion_Conflict_test()

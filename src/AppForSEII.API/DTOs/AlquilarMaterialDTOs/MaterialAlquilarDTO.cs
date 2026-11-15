@@ -27,7 +27,7 @@ namespace AppForSEII.API.DTOs.AlquilarMaterialDTOs
 
         [Required]
         [DataType(System.ComponentModel.DataAnnotations.DataType.Currency)]
-        [Range(1, float.MaxValue, ErrorMessage = "precio minimo 1")]
+        [Range(1, 200, ErrorMessage = "precio minimo 1")]
         public decimal Precio
         {
             get; set;

@@ -35,7 +35,7 @@ namespace AppForSEII.API.DTOs.PistasDTOs
 
         [Required] // Esto es por la referencia que tenemos a mano. Entiendo que una reserva de una pista nunca debe ser "accidentalmente gratis"
         [DataType(System.ComponentModel.DataAnnotations.DataType.Currency)]
-        [Range(0.01, (double)decimal.MaxValue, ErrorMessage = "El precio debe ser superior a 0.")]
+        [Range(typeof(decimal), "0.01", "200.00", ErrorMessage = "El precio debe ser superior a 0.")]
         public decimal Precio { get; set; } = 1m;
 
         // comparar objetos en los Tests

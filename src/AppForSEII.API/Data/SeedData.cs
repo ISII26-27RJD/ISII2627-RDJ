@@ -44,7 +44,7 @@ namespace AppForSEII.API.Data
                     .FirstOrDefaultAsync(u => u.UserName == "peter@uclm.es");
 
                 //it initializes the database with an Inscripcion
-                //SeedInscripciones(dbContext, user); //Por favor arregla esto, me saltan errores porque no puedes insertar null en "clientesID"
+                SeedInscripciones(dbContext, user); 
             }
             catch (Exception ex) {
                 logger.LogError(ex, "An error occurred seeding an Inscripcion in the Database.");
@@ -170,7 +170,7 @@ namespace AppForSEII.API.Data
             dbContext.SaveChanges();
 
             //Since EFCORE7, you can perform bulk updates with linq. Example:
-            //dbContext.Set<ClaseDeportiva>().ExecuteUpdate(s => s.SetProperty(c => c.PlazasDisponibles, c => c.PlazasDisponibles + 5));
+            dbContext.Set<ClaseDeportiva>().ExecuteUpdate(s => s.SetProperty(c => c.PlazasDisponibles, c => c.PlazasDisponibles + 5));
         }
 
         public static void SeedInscripciones(ApplicationDbContext dbContext, ApplicationUser? user) 
